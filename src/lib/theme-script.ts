@@ -1,0 +1,1 @@
+export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("kelime-merdiveni-theme");if(t==="light"){document.documentElement.classList.remove("dark");}else{document.documentElement.classList.add("dark");}}catch(e){document.documentElement.classList.add("dark");}})();`;

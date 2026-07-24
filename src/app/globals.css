@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ladder-bg: #f8fafc;
+  --ladder-surface: #ffffff;
+  --ladder-border: #cbd5e1;
+  --ladder-accent: #2563eb;
+  --ladder-success: #16a34a;
+  --ladder-orange: #ea580c;
+  --ladder-text: #0f172a;
+  --ladder-muted: #64748b;
+}
+
+.dark {
+  color-scheme: dark;
+  --ladder-bg: #0f1419;
+  --ladder-surface: #1a2332;
+  --ladder-border: #2d3a4f;
+  --ladder-accent: #3b82f6;
+  --ladder-success: #22c55e;
+  --ladder-orange: #f97316;
+  --ladder-text: #e2e8f0;
+  --ladder-muted: #94a3b8;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+body {
+  @apply bg-ladder-bg text-ladder-text antialiased;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  width: 100%;
+  max-width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+button {
+  font: inherit;
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.25s ease-out;
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+}
