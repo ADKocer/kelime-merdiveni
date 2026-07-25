@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden overscroll-x-none bg-ladder-bg text-ladder-text antialiased [touch-action:manipulation]">
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
