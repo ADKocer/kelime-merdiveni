@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "tr_TR",
   },
+  verification: {
+    google: "Gkcmp88GE5PcHSSljZDgkwRVujPDUkoQjJ5yzFOluHk",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
