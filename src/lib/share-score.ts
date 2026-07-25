@@ -1,5 +1,7 @@
 import { toTurkishUpperCase } from "./word-input";
 
+export const SHARE_SITE = "kelimemerdiveni.com";
+
 export interface ShareScoreInput {
   puzzleNumber: number;
   path: string[];
@@ -7,11 +9,8 @@ export interface ShareScoreInput {
   gameUrl?: string;
 }
 
-function getGameUrl(gameUrl?: string): string {
-  return (
-    gameUrl ??
-    (typeof window !== "undefined" ? window.location.origin : "")
-  );
+function getShareUrl(gameUrl?: string): string {
+  return gameUrl ?? `https://${SHARE_SITE}`;
 }
 
 /** Her adımda hangi harf konumunun değiştiğini spoilersız gösterir. */
@@ -37,9 +36,7 @@ export function buildShareText({
   puzzleNumber,
   path,
   steps,
-  gameUrl,
 }: ShareScoreInput): string {
-  const url = getGameUrl(gameUrl);
   const start = path[0] ? toTurkishUpperCase(path[0]) : "";
   const end = path[path.length - 1]
     ? toTurkishUpperCase(path[path.length - 1])
@@ -51,9 +48,9 @@ export function buildShareText({
     start,
     ...masks,
     end,
-    `${steps} adımda tamamladım!`,
+    `${steps} adımda bitirdim — sen daha az adımla yapabilir misin?`,
     "",
-    url ? `Sen de dene: ${url}` : "",
+    SHARE_SITE,
     "#KelimeMerdiveni",
   ]
     .filter(Boolean)
@@ -62,7 +59,7 @@ export function buildShareText({
 
 export function getShareLinks(input: ShareScoreInput) {
   const text = buildShareText(input);
-  const url = getGameUrl(input.gameUrl);
+  const url = getShareUrl(input.gameUrl);
   const title = `Kelime Merdiveni #${input.puzzleNumber} — ${input.steps} adım`;
 
   return {

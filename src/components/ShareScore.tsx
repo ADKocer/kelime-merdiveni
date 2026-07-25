@@ -78,17 +78,25 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
     if (!navigator.share) return false;
 
     const file = createShareFile(blob, puzzleNumber);
-    const shareData: ShareData = {
+    const withText: ShareData = {
+      title: `Kelime Merdiveni #${puzzleNumber}`,
+      text: links.text,
+      files: [file],
+    };
+    const fileOnly: ShareData = {
       title: `Kelime Merdiveni #${puzzleNumber}`,
       files: [file],
     };
 
+    const payload =
+      !navigator.canShare || navigator.canShare(withText) ? withText : fileOnly;
+
     try {
-      if (navigator.canShare && !navigator.canShare(shareData)) {
+      if (navigator.canShare && !navigator.canShare(payload)) {
         return false;
       }
 
-      await navigator.share(shareData);
+      await navigator.share(payload);
       return true;
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {

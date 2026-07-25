@@ -639,69 +639,57 @@ export function GameBoard() {
       </div>
 
       <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface p-3 shadow-xl shadow-black/15 dark:shadow-black/40 sm:p-5">
-        <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:gap-4">
-          <div className="min-w-0 flex-1">
-            <WordRow
-              word={puzzle.startWord}
-              label="Başlangıç"
-              highlight="start"
-              hintIndex={path.length === 1 ? hintIndex : null}
-            />
-          </div>
-          <div
-            className="text-center text-lg text-ladder-muted sm:text-2xl"
-            aria-hidden="true"
-          >
-            <span className="sm:hidden">↓</span>
-            <span className="hidden sm:inline">→</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <WordRow
-              word={puzzle.endWord}
-              label="Hedef"
-              highlight={completed ? "end" : "goal"}
-            />
-          </div>
-        </div>
+        <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:gap-3">
+          <WordRow
+            word={puzzle.startWord}
+            label="Başlangıç"
+            highlight="start"
+            hintIndex={path.length === 1 ? hintIndex : null}
+          />
 
-        <div className="mb-4 grid gap-2 sm:mb-5 sm:gap-3">
-          {path.slice(1).map((word, index) => (
+          {(completed ? path.slice(1, -1) : path.slice(1)).map((word, index) => (
             <WordRow
               key={`${word}-${index + 1}`}
               word={word}
               label={`#${index + 1}`}
-              highlight={
-                index === path.length - 2 && completed ? "end" : "step"
-              }
+              highlight="step"
               hintIndex={
-                hintIndex !== null && index === path.length - 2
+                hintIndex !== null &&
+                !completed &&
+                index === path.length - 2
                   ? hintIndex
                   : null
               }
             />
           ))}
 
-          {!completed && (
-            <div className="animate-pop-in rounded-xl border border-dashed border-ladder-border p-3 sm:p-4">
-              <label className="mb-3 block text-center text-sm text-ladder-muted">
-                Sıradaki kelime ({puzzle.wordLength} harf)
-              </label>
-              <WordInputTiles
-                value={input}
-                length={puzzle.wordLength}
-                hintIndex={hintIndex}
-              />
-              <div className="-mx-3 mt-4 sm:mx-0">
-                <TurkishKeyboard
-                  onKey={appendLetter}
-                  onBackspace={removeLetter}
-                  onEnter={() => void submitWord()}
-                  canEnter={input.length === puzzle.wordLength}
-                />
-              </div>
-            </div>
-          )}
+          <WordRow
+            word={puzzle.endWord}
+            label="Hedef"
+            highlight={completed ? "end" : "goal"}
+          />
         </div>
+
+        {!completed && (
+          <div className="animate-pop-in mb-4 rounded-xl border border-dashed border-ladder-border p-3 sm:mb-5 sm:p-4">
+            <label className="mb-3 block text-center text-sm text-ladder-muted">
+              Sıradaki kelime ({puzzle.wordLength} harf)
+            </label>
+            <WordInputTiles
+              value={input}
+              length={puzzle.wordLength}
+              hintIndex={hintIndex}
+            />
+            <div className="-mx-3 mt-4 sm:mx-0">
+              <TurkishKeyboard
+                onKey={appendLetter}
+                onBackspace={removeLetter}
+                onEnter={() => void submitWord()}
+                canEnter={input.length === puzzle.wordLength}
+              />
+            </div>
+          </div>
+        )}
 
         {(error || message) && (
           <div
