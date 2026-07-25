@@ -21,7 +21,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["Georgia", "serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-outfit)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
     },
   },
@@ -29,3 +30,4 @@ const config: Config = {
 };
 
 export default config;
+

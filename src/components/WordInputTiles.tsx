@@ -26,12 +26,12 @@ export function WordInputTiles({
             key={index}
             className={`flex h-11 min-w-0 flex-1 max-w-12 items-center justify-center rounded-lg border-2 font-display text-base tracking-wide transition sm:h-12 sm:max-w-[3rem] sm:text-xl ${
               isHint
-                ? "border-ladder-orange bg-ladder-orange/35 text-ladder-text ring-2 ring-ladder-orange/60"
+                ? "border-ladder-orange bg-ladder-orange/40 text-ladder-text ring-2 ring-ladder-orange/70"
                 : char
-                  ? "border-ladder-accent bg-ladder-accent/25 text-ladder-text"
+                  ? "border-ladder-accent bg-ladder-accent/30 text-ladder-text"
                   : index === value.length
-                    ? "border-ladder-accent/80 bg-ladder-bg text-ladder-muted"
-                    : "border-ladder-border bg-ladder-bg/60 text-ladder-muted/60"
+                    ? "border-ladder-accent bg-ladder-bg text-ladder-muted"
+                    : "border-ladder-border bg-ladder-bg/80 text-ladder-muted/70"
             }`}
             aria-hidden="true"
           >

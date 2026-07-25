@@ -16,13 +16,13 @@
 
 .dark {
   color-scheme: dark;
-  --ladder-bg: #0f1419;
-  --ladder-surface: #1c2536;
-  --ladder-border: #334155;
-  --ladder-accent: #3b82f6;
-  --ladder-success: #22c55e;
-  --ladder-orange: #f97316;
-  --ladder-text: #e2e8f0;
+  --ladder-bg: #0c1118;
+  --ladder-surface: #1e293b;
+  --ladder-border: #3b4c66;
+  --ladder-accent: #60a5fa;
+  --ladder-success: #34d399;
+  --ladder-orange: #fb923c;
+  --ladder-text: #f1f5f9;
   --ladder-muted: #94a3b8;
 }
 

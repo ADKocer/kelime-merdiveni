@@ -29,8 +29,8 @@ function WordRow({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#e2e8f0",
-            fontFamily: "Georgia, serif",
+            color: "#f1f5f9",
+            fontFamily: "Outfit, Inter, system-ui, sans-serif",
             fontWeight: 700,
             fontSize: 30,
           }}
@@ -54,7 +54,7 @@ function MaskRow({ prev, next }: { prev: string; next: string }) {
               width: 72,
               height: 72,
               borderRadius: 10,
-              backgroundColor: changed ? "#f97316" : "#2d3a4f",
+              backgroundColor: changed ? "#fb923c" : "#3b4c66",
             }}
           />
         );
@@ -78,18 +78,18 @@ export function ShareCard({
         width: 720,
         boxSizing: "border-box",
         padding: 48,
-        backgroundColor: "#0f1419",
+        backgroundColor: "#0c1118",
         backgroundImage:
-          "radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0) 60%)",
-        fontFamily: "system-ui, sans-serif",
-        color: "#e2e8f0",
+          "radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.22), rgba(96, 165, 250, 0) 60%)",
+        fontFamily: "Inter, system-ui, sans-serif",
+        color: "#f1f5f9",
       }}
     >
       <div
         style={{
-          border: "2px solid #2d3a4f",
+          border: "2px solid #3b4c66",
           borderRadius: 28,
-          backgroundColor: "#1a2332",
+          backgroundColor: "#1e293b",
           padding: "32px 36px 48px",
         }}
       >
@@ -109,7 +109,7 @@ export function ShareCard({
           style={{
             margin: "8px 0 28px",
             textAlign: "center",
-            fontFamily: "Georgia, serif",
+            fontFamily: "Outfit, Inter, system-ui, sans-serif",
             fontSize: 42,
             fontWeight: 700,
           }}
@@ -120,8 +120,8 @@ export function ShareCard({
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <WordRow
             word={start}
-            tileFill="rgba(59, 130, 246, 0.2)"
-            tileBorder="#3b82f6"
+            tileFill="rgba(96, 165, 250, 0.25)"
+            tileBorder="#60a5fa"
           />
 
           {Array.from({ length: stepCount }, (_, index) => (
@@ -134,8 +134,8 @@ export function ShareCard({
 
           <WordRow
             word={end}
-            tileFill="rgba(34, 197, 94, 0.2)"
-            tileBorder="#22c55e"
+            tileFill="rgba(52, 211, 153, 0.25)"
+            tileBorder="#34d399"
           />
         </div>
 

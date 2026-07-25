@@ -1,5 +1,5 @@
 export const ISTANBUL_TIMEZONE = "Europe/Istanbul";
-export const GAME_LAUNCH_DATE = "2026-01-01";
+export const GAME_LAUNCH_DATE = "2026-07-24";
 
 export function getIstanbulDateKey(date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {

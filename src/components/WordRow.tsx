@@ -14,11 +14,11 @@ export function WordRow({
   hintIndex = null,
 }: WordRowProps) {
   const styles = {
-    start: "border-ladder-accent/80 bg-ladder-accent/20",
-    end: "border-ladder-success/80 bg-ladder-success/20",
-    goal: "border-ladder-success/60 bg-ladder-success/10",
-    step: "border-ladder-orange/80 bg-ladder-orange/25",
-    default: "border-ladder-border bg-ladder-bg/60",
+    start: "border-ladder-accent bg-ladder-accent/30",
+    end: "border-ladder-success bg-ladder-success/30",
+    goal: "border-ladder-success/70 bg-ladder-success/15",
+    step: "border-ladder-orange bg-ladder-orange/30",
+    default: "border-ladder-border bg-ladder-surface",
   };
 
   return (

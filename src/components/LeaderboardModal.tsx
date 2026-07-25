@@ -47,7 +47,7 @@ export function LeaderboardModal({
       <button
         type="button"
         aria-label="Onur tablosunu kapat"
-        className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/55 backdrop-blur-sm"
         onClick={onClose}
       />
 
@@ -55,9 +55,9 @@ export function LeaderboardModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="leaderboard-modal-title"
-        className="relative z-10 flex w-full max-w-md max-h-[min(85vh,36rem)] min-w-0 flex-col overflow-hidden rounded-2xl border border-ladder-border bg-ladder-surface shadow-2xl shadow-black/40"
+        className="relative z-10 flex w-full max-w-md max-h-[min(85vh,36rem)] min-w-0 flex-col overflow-hidden rounded-2xl border border-ladder-border bg-ladder-surface shadow-2xl shadow-black/50"
       >
-        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-ladder-border/70 px-4 py-3 sm:px-5">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-ladder-border px-4 py-3 sm:px-5">
           <div className="min-w-0">
             <h2
               id="leaderboard-modal-title"

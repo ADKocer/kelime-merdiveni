@@ -161,7 +161,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
   };
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden rounded-xl border border-ladder-border bg-ladder-bg/40 p-3 sm:p-4">
+    <div className="w-full min-w-0 overflow-x-hidden rounded-xl border border-ladder-border bg-ladder-bg/60 p-3 sm:p-4">
       <div
         ref={captureRef}
         aria-hidden="true"
@@ -177,7 +177,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
         <img
           src={previewUrl}
           alt={`Kelime Merdiveni #${puzzleNumber} skor kartı`}
-          className="mb-4 w-full rounded-lg border border-ladder-border/60"
+          className="mb-4 w-full rounded-lg border border-ladder-border"
         />
       ) : (
         <p className="mb-4 text-xs text-ladder-muted">
@@ -189,7 +189,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
         type="button"
         onClick={() => void handleShare()}
         disabled={sharing}
-        className="mb-3 w-full rounded-lg border border-ladder-accent/70 bg-ladder-accent/15 px-4 py-3 text-sm font-medium text-ladder-accent transition hover:bg-ladder-accent/25 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mb-3 w-full rounded-lg border border-ladder-accent bg-ladder-accent/20 px-4 py-3 text-sm font-medium text-ladder-accent transition hover:bg-ladder-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {sharing
           ? "Hazırlanıyor..."
@@ -209,7 +209,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
           </span>
         </summary>
 
-        <pre className="mt-3 mb-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-ladder-border/60 bg-ladder-bg/60 p-3 text-xs leading-relaxed text-ladder-muted">
+        <pre className="mt-3 mb-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-ladder-border bg-ladder-bg/80 p-3 text-xs leading-relaxed text-ladder-muted">
           {links.text}
         </pre>
 

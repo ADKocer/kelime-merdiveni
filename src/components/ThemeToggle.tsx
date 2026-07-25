@@ -44,10 +44,10 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="rounded-lg border border-ladder-border px-3 py-2 text-sm text-ladder-muted transition hover:border-ladder-text hover:text-ladder-text"
+      className="flex h-10 w-10 items-center justify-center rounded-lg border border-ladder-border text-lg transition hover:border-ladder-text"
       aria-label={theme === "dark" ? "Açık temaya geç" : "Koyu temaya geç"}
     >
-      {theme === "dark" ? "☀ Açık" : "☾ Koyu"}
+      {theme === "dark" ? "☀️" : "🌙"}
     </button>
   );
 }

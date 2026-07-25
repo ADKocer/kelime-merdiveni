@@ -542,9 +542,6 @@ export function GameBoard() {
           <div className="mb-2 flex justify-end">
             <ThemeToggle />
           </div>
-          <p className="mb-1 text-[11px] uppercase tracking-[0.16em] text-ladder-muted sm:text-sm sm:tracking-[0.35em]">
-            Günlük Türkçe Kelime Oyunu
-          </p>
           <h1 className="font-display text-[1.75rem] font-bold leading-tight tracking-tight sm:text-4xl">
             Kelime Merdiveni
           </h1>
