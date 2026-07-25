@@ -145,14 +145,6 @@ export function ProgressCalendar({
       <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
         <div>
           <p className="font-medium text-ladder-text">İlerleme Takvimi</p>
-          <p className="text-xs text-ladder-muted">
-            Yeşil: gününde · Turuncu: geç tamamlandı · Kırmızı: kaçırıldı
-          </p>
-          {onSelectDate && (
-            <p className="mt-1 text-xs text-ladder-muted">
-              Geçmiş bir güne dokunarak o merdiveni oynayabilirsin.
-            </p>
-          )}
         </div>
         <div className="flex items-center justify-between gap-2 sm:justify-end">
           <button

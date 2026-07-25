@@ -25,9 +25,17 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Kelime Merdiveni",
+  metadataBase: new URL("https://kelimemerdiveni.com"),
+  title: "Kelime Merdiveni - Word Ladder Türkçe",
   description:
-    "Her gün yeni bir merdiven: başlangıç kelimesinden hedefe, her adımda bir harf değiştirerek ulaş.",
+    "Dünyaca ünlü Word Ladder oyununun Türkçe versiyonu Kelime Merdiveni! Başlangıç kelimesinden hedef kelimeye sadece tek harf değiştirerek ulaş. Hemen Word Ladder Türkçe oyna!",
+  openGraph: {
+    title: "Kelime Merdiveni - Günlük Kelime Oyunu",
+    description: "Bugünün kelime merdivenini sen kaç adımda ineceksin?",
+    url: "https://kelimemerdiveni.com",
+    type: "website",
+    locale: "tr_TR",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

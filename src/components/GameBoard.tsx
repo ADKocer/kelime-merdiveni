@@ -788,7 +788,7 @@ export function GameBoard() {
 
         <details className="mt-4 rounded-xl border border-ladder-border bg-ladder-bg/60 sm:mt-5">
           <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-ladder-text [&::-webkit-details-marker]:hidden">
-            Kurallar
+            Nasıl Oynanır
           </summary>
           <ul className="space-y-1 px-3 pb-2 text-sm text-ladder-muted">
             <li>Her adımda yalnızca 1 harf değişebilir.</li>
@@ -803,6 +803,9 @@ export function GameBoard() {
               {toTurkishUpperCase("koni")}
             </span>
             <span className="text-ladder-muted"> (y-n, o-i)</span>
+          </p>
+          <p className="mx-3 mb-3 border-t border-ladder-border/60 pt-3 text-center text-xs text-ladder-muted/80">
+            Klasik Word Ladder oyununun Türkçe versiyonudur.
           </p>
         </details>
       </section>

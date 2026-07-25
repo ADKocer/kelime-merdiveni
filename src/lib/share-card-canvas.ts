@@ -2,16 +2,19 @@ import { toTurkishUpperCase } from "./word-input";
 import type { ShareCardInput } from "@/components/ShareCard";
 
 const COLORS = {
-  bg: "#0f1419",
-  surface: "#1a2332",
-  border: "#2d3a4f",
-  text: "#e2e8f0",
+  bg: "#0c1118",
+  surface: "#1e293b",
+  border: "#3b4c66",
+  text: "#f1f5f9",
   muted: "#94a3b8",
-  accent: "#3b82f6",
-  orange: "#f97316",
-  success: "#22c55e",
-  tileIdle: "#2d3a4f",
+  accent: "#60a5fa",
+  orange: "#fb923c",
+  success: "#34d399",
+  tileIdle: "#3b4c66",
 };
+
+const FONT_BODY = "Inter, system-ui, sans-serif";
+const FONT_DISPLAY = "Outfit, Inter, system-ui, sans-serif";
 
 function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -51,7 +54,7 @@ function drawWordRow(
     ctx.stroke();
 
     ctx.fillStyle = COLORS.text;
-    ctx.font = `700 ${Math.floor(tileSize * 0.42)}px Georgia, serif`;
+    ctx.font = `700 ${Math.floor(tileSize * 0.42)}px ${FONT_DISPLAY}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(
@@ -87,21 +90,18 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   const width = 720;
   const outerInset = 24;
   const innerPadTop = 32;
-  const innerPadBottom = 48;
+  const innerPadBottom = 40;
   const tileSize = 72;
   const gap = 10;
   const rowGap = 14;
   const headerHeight = 110;
-  const textGap = 28;
-  const textLineHeight = 36;
 
   const boardWidth = wordLength * tileSize + (wordLength - 1) * gap;
   const boardX = (width - boardWidth) / 2;
   const rows = stepCount + 2;
   const boardHeight = rows * tileSize + (rows - 1) * rowGap;
 
-  const innerHeight =
-    innerPadTop + headerHeight + boardHeight + textGap + textLineHeight + innerPadBottom;
+  const innerHeight = innerPadTop + headerHeight + boardHeight + innerPadBottom;
   const height = outerInset * 2 + innerHeight;
 
   const canvas = document.createElement("canvas");
@@ -122,8 +122,8 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
     120,
     420,
   );
-  gradient.addColorStop(0, "rgba(59, 130, 246, 0.18)");
-  gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+  gradient.addColorStop(0, "rgba(96, 165, 250, 0.22)");
+  gradient.addColorStop(1, "rgba(96, 165, 250, 0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, 360);
 
@@ -136,13 +136,13 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
 
   const headerY = outerInset + innerPadTop;
   ctx.fillStyle = COLORS.muted;
-  ctx.font = "600 20px system-ui, sans-serif";
+  ctx.font = `600 20px ${FONT_BODY}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   ctx.fillText("KELİME MERDİVENİ", width / 2, headerY + 24);
 
   ctx.fillStyle = COLORS.text;
-  ctx.font = "700 42px Georgia, serif";
+  ctx.font = `700 42px ${FONT_DISPLAY}`;
   ctx.fillText(`#${input.puzzleNumber}`, width / 2, headerY + 74);
 
   let y = headerY + headerHeight;
@@ -156,7 +156,7 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
     y,
     tileSize,
     gap,
-    "rgba(59, 130, 246, 0.2)",
+    "rgba(96, 165, 250, 0.25)",
     COLORS.accent,
   );
   y += tileSize + rowGap;
@@ -173,18 +173,9 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
     y,
     tileSize,
     gap,
-    "rgba(34, 197, 94, 0.2)",
+    "rgba(52, 211, 153, 0.25)",
     COLORS.success,
   );
-
-  const boardBottom = headerY + headerHeight + boardHeight;
-  const textY = boardBottom + textGap + textLineHeight / 2;
-
-  ctx.fillStyle = COLORS.text;
-  ctx.font = "600 28px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(`${input.steps} adımda tamamladım`, width / 2, textY);
 
   return canvas;
 }

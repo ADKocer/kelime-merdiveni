@@ -66,7 +66,6 @@ function MaskRow({ prev, next }: { prev: string; next: string }) {
 export function ShareCard({
   puzzleNumber,
   path,
-  steps,
 }: ShareCardInput) {
   const stepCount = Math.max(path.length - 1, 0);
   const start = path[0] ?? "";
@@ -90,7 +89,7 @@ export function ShareCard({
           border: "2px solid #3b4c66",
           borderRadius: 28,
           backgroundColor: "#1e293b",
-          padding: "32px 36px 48px",
+          padding: "32px 36px 36px",
         }}
       >
         <p
@@ -138,17 +137,6 @@ export function ShareCard({
             tileBorder="#34d399"
           />
         </div>
-
-        <p
-          style={{
-            margin: "28px 0 0",
-            textAlign: "center",
-            fontSize: 28,
-            fontWeight: 600,
-          }}
-        >
-          {steps} adımda tamamladım
-        </p>
       </div>
     </div>
   );

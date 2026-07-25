@@ -11,7 +11,7 @@ async function captureShareCardBlob(
   element: HTMLElement,
 ): Promise<Blob> {
   const canvas = await html2canvas(element, {
-    backgroundColor: "#0f1419",
+    backgroundColor: "#0c1118",
     scale: getCaptureScale(),
     useCORS: true,
     logging: false,
