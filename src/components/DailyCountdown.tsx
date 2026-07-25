@@ -45,7 +45,7 @@ export function DailyCountdown({
   }, [onDayChange, puzzleDate]);
 
   return (
-    <div className="rounded-full border border-ladder-border bg-ladder-bg/50 px-3 py-1 text-xs sm:px-4 sm:text-sm">
+    <div className="rounded-full border border-ladder-border bg-ladder-bg/60 px-3 py-1 text-xs sm:px-4 sm:text-sm">
       <span className="text-ladder-muted">Yeni merdivene </span>
       <span className="font-mono font-medium tabular-nums text-ladder-text">
         {formatCountdown(secondsLeft)}

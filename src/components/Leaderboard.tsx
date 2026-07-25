@@ -96,7 +96,7 @@ export function Leaderboard({
             {data.entries.map((entry, index) => (
               <li
                 key={entry.id}
-                className="rounded-xl border border-ladder-border bg-ladder-bg/40 px-3 py-2.5"
+                className="rounded-xl border border-ladder-border bg-ladder-bg/50 px-3 py-2.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
@@ -107,7 +107,7 @@ export function Leaderboard({
                       <p className="truncate font-medium">{entry.playerName}</p>
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-ladder-accent/20 px-2.5 py-0.5 text-sm font-semibold text-ladder-accent">
+                  <span className="shrink-0 rounded-full bg-ladder-accent/25 px-2.5 py-0.5 text-sm font-semibold text-ladder-accent">
                     {entry.steps}
                   </span>
                 </div>
@@ -145,7 +145,7 @@ export function Leaderboard({
           {data.entries.map((entry, index) => (
             <li
               key={entry.id}
-              className="rounded-xl border border-ladder-border bg-ladder-bg/40 px-3 py-2.5 sm:px-4 sm:py-3"
+              className="rounded-xl border border-ladder-border bg-ladder-bg/50 px-3 py-2.5 sm:px-4 sm:py-3"
             >
               <div className="flex items-center justify-between gap-2 sm:gap-3">
                 <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -156,7 +156,7 @@ export function Leaderboard({
                     <p className="truncate font-medium">{entry.playerName}</p>
                   </div>
                 </div>
-                <span className="shrink-0 rounded-full bg-ladder-accent/20 px-3 py-1 text-sm font-semibold text-ladder-accent">
+                <span className="shrink-0 rounded-full bg-ladder-accent/25 px-3 py-1 text-sm font-semibold text-ladder-accent">
                   {entry.steps}
                 </span>
               </div>

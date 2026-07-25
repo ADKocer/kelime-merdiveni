@@ -83,14 +83,14 @@ const LAUNCH_MONTH = Number(GAME_LAUNCH_DATE.slice(5, 7));
 
 const STATUS_STYLES: Record<DayStatus, string> = {
   empty: "invisible",
-  future: "border-ladder-border/40 bg-ladder-bg/20 text-ladder-muted/40",
+  future: "border-ladder-border/50 bg-ladder-bg/30 text-ladder-muted/50",
   today:
-    "border-blue-500 bg-blue-500/15 text-ladder-text ring-2 ring-blue-500/40",
+    "border-blue-500 bg-blue-500/20 text-ladder-text ring-2 ring-blue-500/50",
   completed:
-    "border-emerald-600 bg-emerald-500/35 text-emerald-950 dark:border-emerald-500 dark:bg-emerald-500/30 dark:text-emerald-50",
-  late: "border-orange-600 bg-orange-500/35 text-orange-950 dark:border-orange-500 dark:bg-orange-500/30 dark:text-orange-50",
+    "border-emerald-600 bg-emerald-500/40 text-emerald-950 dark:border-emerald-500 dark:bg-emerald-500/35 dark:text-emerald-50",
+  late: "border-orange-600 bg-orange-500/40 text-orange-950 dark:border-orange-500 dark:bg-orange-500/35 dark:text-orange-50",
   missed:
-    "border-red-500 bg-red-500/25 text-red-800 dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-100",
+    "border-red-500 bg-red-500/30 text-red-800 dark:border-red-500/50 dark:bg-red-500/25 dark:text-red-100",
 };
 
 export function ProgressCalendar({

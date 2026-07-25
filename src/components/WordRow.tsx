@@ -14,11 +14,11 @@ export function WordRow({
   hintIndex = null,
 }: WordRowProps) {
   const styles = {
-    start: "border-ladder-accent/60 bg-ladder-accent/10",
-    end: "border-ladder-success/60 bg-ladder-success/10",
-    goal: "border-ladder-success/40 bg-ladder-success/5",
-    step: "border-ladder-orange/60 bg-ladder-orange/15",
-    default: "border-ladder-border bg-ladder-bg/50",
+    start: "border-ladder-accent/80 bg-ladder-accent/20",
+    end: "border-ladder-success/80 bg-ladder-success/20",
+    goal: "border-ladder-success/60 bg-ladder-success/10",
+    step: "border-ladder-orange/80 bg-ladder-orange/25",
+    default: "border-ladder-border bg-ladder-bg/60",
   };
 
   return (
@@ -32,7 +32,7 @@ export function WordRow({
             key={index}
             className={
               hintIndex === index
-                ? "rounded bg-ladder-orange/30 px-0.5 text-ladder-orange"
+                ? "rounded bg-ladder-orange/45 px-0.5 text-ladder-orange"
                 : undefined
             }
           >

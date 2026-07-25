@@ -48,11 +48,11 @@ const KEY_CLASSES = {
 
   mobile:
 
-    "flex h-14 min-h-[3.5rem] min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/80 text-lg font-semibold text-ladder-text transition active:scale-[0.97] active:bg-ladder-border/60 disabled:cursor-not-allowed disabled:opacity-40",
+    "flex h-14 min-h-[3.5rem] min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/90 text-lg font-semibold text-ladder-text transition active:scale-[0.97] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40",
 
   desktop:
 
-    "flex h-11 min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/80 text-base font-medium text-ladder-text transition active:scale-95 active:bg-ladder-border/60 disabled:cursor-not-allowed disabled:opacity-40",
+    "flex h-11 min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/90 text-base font-medium text-ladder-text transition active:scale-95 active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40",
 
 } as const;
 
@@ -176,7 +176,7 @@ function ActionRow({
 
         onClick={onBackspace}
 
-        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/80 px-2 ${textClass} font-medium text-ladder-muted transition active:scale-[0.97] active:bg-ladder-border/60 disabled:cursor-not-allowed disabled:opacity-40`}
+        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/90 px-2 ${textClass} font-medium text-ladder-muted transition active:scale-[0.97] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40`}
 
         aria-label="Sil"
 

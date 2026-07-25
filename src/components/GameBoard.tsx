@@ -703,8 +703,8 @@ export function GameBoard() {
           <div
             className={`mb-4 rounded-lg px-4 py-3 text-sm ${
               error
-                ? "border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-200"
-                : "border border-green-500/30 bg-green-500/10 text-green-800 dark:text-green-200"
+                ? "border border-red-500/45 bg-red-500/15 text-red-700 dark:text-red-200"
+                : "border border-green-500/45 bg-green-500/15 text-green-800 dark:text-green-200"
             }`}
           >
             {error ?? message}
@@ -726,7 +726,7 @@ export function GameBoard() {
                 type="button"
                 onClick={() => void requestHint()}
                 disabled={hintUsed || hintLoading}
-                className="rounded-lg border border-ladder-orange/50 bg-ladder-orange/10 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/20 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg border border-ladder-orange/70 bg-ladder-orange/15 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/25 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {hintLoading
                   ? "İpucu alınıyor..."

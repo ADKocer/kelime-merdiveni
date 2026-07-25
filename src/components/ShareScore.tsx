@@ -189,7 +189,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
         type="button"
         onClick={() => void handleShare()}
         disabled={sharing}
-        className="mb-3 w-full rounded-lg border border-ladder-accent/50 bg-ladder-accent/10 px-4 py-3 text-sm font-medium text-ladder-accent transition hover:bg-ladder-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mb-3 w-full rounded-lg border border-ladder-accent/70 bg-ladder-accent/15 px-4 py-3 text-sm font-medium text-ladder-accent transition hover:bg-ladder-accent/25 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {sharing
           ? "Hazırlanıyor..."
