@@ -39,6 +39,7 @@ interface PuzzleResponse {
 interface ValidateResponse {
   valid: boolean;
   reason?: string;
+  error?: string;
   path?: string[];
   completed?: boolean;
 }
@@ -277,8 +278,14 @@ export function GameBoard() {
     });
 
     const result = (await response.json()) as ValidateResponse;
-    if (!result.valid) {
-      setError(result.reason ?? "Geçersiz hamle.");
+    if (!response.ok || !result.valid) {
+      setError(
+        result.reason ??
+          result.error ??
+          (response.status === 401
+            ? "Oyun oturumu bulunamadı. Sayfayı yenile."
+            : "Geçersiz hamle."),
+      );
       return;
     }
 
@@ -543,7 +550,7 @@ export function GameBoard() {
           </h1>
         </header>
 
-        <section className="rounded-2xl border border-ladder-border bg-ladder-surface p-4 shadow-xl shadow-black/10 dark:shadow-black/20 sm:p-5">
+        <section className="rounded-2xl border border-ladder-border bg-ladder-surface p-4 shadow-xl shadow-black/15 dark:shadow-black/40 sm:p-5">
           <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
             <div>
               <p className="text-xs text-ladder-muted sm:text-sm">
@@ -560,7 +567,7 @@ export function GameBoard() {
             />
           </div>
 
-          <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-ladder-border/70 bg-ladder-bg/40 px-3 py-3 sm:gap-3 sm:py-4">
+          <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-ladder-border bg-ladder-bg/60 px-3 py-3 sm:gap-3 sm:py-4">
             <span className="font-display text-lg tracking-[0.12em] sm:text-2xl sm:tracking-[0.2em]">
               {toTurkishUpperCase(puzzle.startWord)}
             </span>
@@ -634,7 +641,7 @@ export function GameBoard() {
         </div>
       </div>
 
-      <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface p-3 shadow-xl shadow-black/10 dark:shadow-black/20 sm:p-5">
+      <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface p-3 shadow-xl shadow-black/15 dark:shadow-black/40 sm:p-5">
         <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:gap-4">
           <div className="min-w-0 flex-1">
             <WordRow
@@ -703,8 +710,8 @@ export function GameBoard() {
           <div
             className={`mb-4 rounded-lg px-4 py-3 text-sm ${
               error
-                ? "border border-red-500/45 bg-red-500/15 text-red-700 dark:text-red-200"
-                : "border border-green-500/45 bg-green-500/15 text-green-800 dark:text-green-200"
+                ? "border border-red-500/60 bg-red-500/20 text-red-700 dark:text-red-200"
+                : "border border-green-500/60 bg-green-500/20 text-green-800 dark:text-green-200"
             }`}
           >
             {error ?? message}
@@ -726,7 +733,7 @@ export function GameBoard() {
                 type="button"
                 onClick={() => void requestHint()}
                 disabled={hintUsed || hintLoading}
-                className="rounded-lg border border-ladder-orange/70 bg-ladder-orange/15 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/25 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg border border-ladder-orange bg-ladder-orange/20 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/30 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {hintLoading
                   ? "İpucu alınıyor..."
@@ -794,7 +801,7 @@ export function GameBoard() {
           )}
         </div>
 
-        <details className="mt-4 rounded-xl border border-ladder-border/70 bg-ladder-bg/40 sm:mt-5">
+        <details className="mt-4 rounded-xl border border-ladder-border bg-ladder-bg/60 sm:mt-5">
           <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-ladder-text [&::-webkit-details-marker]:hidden">
             Kurallar
           </summary>
@@ -804,7 +811,7 @@ export function GameBoard() {
             <li>Tüm kelimeler oyun sözlüğünde geçerli olmalıdır.</li>
             <li>Ek eklenerek türetilmiş kelimeler kabul edilmez.</li>
           </ul>
-          <p className="mx-3 mb-3 rounded-lg border border-ladder-border/60 bg-ladder-bg/60 px-3 py-2 text-sm text-ladder-text">
+          <p className="mx-3 mb-3 rounded-lg border border-ladder-border bg-ladder-bg/80 px-3 py-2 text-sm text-ladder-text">
             <span className="text-ladder-muted">Örnek: </span>
             <span className="tracking-[0.1em] sm:tracking-[0.2em]">
               {toTurkishUpperCase("koyu")} → {toTurkishUpperCase("konu")} →{" "}
