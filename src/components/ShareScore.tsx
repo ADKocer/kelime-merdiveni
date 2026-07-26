@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   blobToDataUrl,
   createShareCardBlob,
-  createShareFile,
 } from "@/lib/share-card";
 import { getShareLinks } from "@/lib/share-score";
 import { ShareCard } from "./ShareCard";
@@ -17,10 +16,7 @@ interface ShareScoreProps {
 
 export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
   const captureRef = useRef<HTMLDivElement>(null);
-  const [copied, setCopied] = useState(false);
-  const [sharing, setSharing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [shareHint, setShareHint] = useState<string | null>(null);
 
   const gameUrl =
     typeof window !== "undefined" ? window.location.origin : "";
@@ -34,11 +30,6 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
     () => getShareLinks({ puzzleNumber, path, steps, gameUrl }),
     [gameUrl, path, puzzleNumber, steps],
   );
-
-  const showHint = (message: string) => {
-    setShareHint(message);
-    window.setTimeout(() => setShareHint(null), 4500);
-  };
 
   const buildBlob = useCallback(async () => {
     return createShareCardBlob(captureRef.current, cardInput);
@@ -63,109 +54,8 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
     };
   }, [buildBlob]);
 
-  const copyImageToClipboard = async (blob: Blob) => {
-    if (typeof ClipboardItem === "undefined") {
-      throw new Error("ClipboardItem desteklenmiyor");
-    }
-    await navigator.clipboard.write([
-      new ClipboardItem({ "image/png": blob }),
-    ]);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
-  };
-
-  const shareWithNativeMenu = async (blob: Blob) => {
-    if (!navigator.share) return false;
-
-    const file = createShareFile(blob, puzzleNumber);
-    const withText: ShareData = {
-      title: `Kelime Merdiveni #${puzzleNumber}`,
-      text: links.text,
-      files: [file],
-    };
-    const fileOnly: ShareData = {
-      title: `Kelime Merdiveni #${puzzleNumber}`,
-      files: [file],
-    };
-
-    const payload =
-      !navigator.canShare || navigator.canShare(withText) ? withText : fileOnly;
-
-    try {
-      if (navigator.canShare && !navigator.canShare(payload)) {
-        return false;
-      }
-
-      await navigator.share(payload);
-      return true;
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        throw error;
-      }
-      return false;
-    }
-  };
-
-  const shareTextNative = async () => {
-    if (!navigator.share) return false;
-    await navigator.share({
-      title: `Kelime Merdiveni #${puzzleNumber}`,
-      text: links.text,
-      url: links.url,
-    });
-    return true;
-  };
-
-  const handleShare = async () => {
-    setSharing(true);
-    setShareHint(null);
-
-    if (typeof window !== "undefined" && !window.isSecureContext) {
-      showHint(
-        "Paylaşım için HTTPS gerekir. Görsele uzun basıp kaydedebilir veya metni kopyalayabilirsin.",
-      );
-      setSharing(false);
-      return;
-    }
-
-    try {
-      const blob = await buildBlob();
-
-      if (await shareWithNativeMenu(blob)) return;
-
-      try {
-        await copyImageToClipboard(blob);
-        showHint(
-          "Görsel panoya kopyalandı. Sohbet veya gönderide yapıştırarak paylaş.",
-        );
-        return;
-      } catch {
-        // Panoya görsel kopyalanamadı
-      }
-
-      try {
-        if (await shareTextNative()) return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
-      }
-
-      showHint("Paylaşılamadı. Metin kopyalamayı dene.");
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      showHint("Paylaşılamadı. Tekrar dene.");
-    } finally {
-      setSharing(false);
-    }
-  };
-
-  const handleCopyText = async () => {
-    try {
-      await navigator.clipboard.writeText(links.text);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      showHint("Metin kopyalanamadı.");
-    }
+  const openShare = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -189,46 +79,26 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
         />
       ) : (
         <p className="mb-4 text-xs text-ladder-muted">
-          Önizleme hazırlanıyor… Paylaş’a basınca görsel oluşturulur.
+          Önizleme hazırlanıyor…
         </p>
       )}
 
-      <button
-        type="button"
-        onClick={() => void handleShare()}
-        disabled={sharing}
-        className="mb-3 w-full rounded-lg border border-ladder-accent bg-ladder-accent/20 px-4 py-3 text-sm font-medium text-ladder-accent transition hover:bg-ladder-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {sharing
-          ? "Hazırlanıyor..."
-          : copied
-            ? "Panoya kopyalandı!"
-            : "Paylaş"}
-      </button>
-
-      {shareHint && (
-        <p className="mb-3 text-xs text-ladder-muted">{shareHint}</p>
-      )}
-
-      <details className="group">
-        <summary className="cursor-pointer list-none text-xs text-ladder-muted transition hover:text-ladder-text [&::-webkit-details-marker]:hidden">
-          <span className="underline-offset-2 group-open:underline">
-            İstersen metin olarak da kopyala
-          </span>
-        </summary>
-
-        <pre className="mt-3 mb-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-ladder-border bg-ladder-bg/80 p-3 text-xs leading-relaxed text-ladder-muted">
-          {links.text}
-        </pre>
-
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <button
           type="button"
-          onClick={() => void handleCopyText()}
-          className="rounded-lg border border-ladder-border px-3 py-2 text-sm text-ladder-text transition hover:border-ladder-text"
+          onClick={() => openShare(links.x)}
+          className="w-full rounded-lg border border-ladder-border bg-ladder-surface px-4 py-3 text-sm font-medium text-ladder-text transition hover:border-ladder-text"
         >
-          Metni kopyala
+          X’te paylaş
         </button>
-      </details>
+        <button
+          type="button"
+          onClick={() => openShare(links.whatsapp)}
+          className="w-full rounded-lg border border-ladder-success/50 bg-ladder-success/15 px-4 py-3 text-sm font-medium text-ladder-success transition hover:bg-ladder-success/25"
+        >
+          WhatsApp’ta paylaş
+        </button>
+      </div>
     </div>
   );
 }

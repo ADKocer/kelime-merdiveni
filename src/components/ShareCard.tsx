@@ -42,34 +42,31 @@ function WordRow({
   );
 }
 
-function MaskRow({ prev, next }: { prev: string; next: string }) {
+/** Spoiler’sız ara basamak: tüm kutular aynı renk. */
+function StepRow({ length }: { length: number }) {
   return (
     <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-      {next.split("").map((_, index) => {
-        const changed = prev[index] !== next[index];
-        return (
-          <div
-            key={index}
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 10,
-              backgroundColor: changed ? "#fb923c" : "#3b4c66",
-            }}
-          />
-        );
-      })}
+      {Array.from({ length }, (_, index) => (
+        <div
+          key={index}
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 10,
+            border: "2px solid #3b4c66",
+            backgroundColor: "rgba(96, 165, 250, 0.12)",
+          }}
+        />
+      ))}
     </div>
   );
 }
 
-export function ShareCard({
-  puzzleNumber,
-  path,
-}: ShareCardInput) {
-  const stepCount = Math.max(path.length - 1, 0);
+export function ShareCard({ puzzleNumber, path, steps }: ShareCardInput) {
   const start = path[0] ?? "";
   const end = path[path.length - 1] ?? "";
+  const wordLength = start.length || end.length || 4;
+  const middleSteps = Math.max(steps - 1, 0);
 
   return (
     <div
@@ -123,12 +120,8 @@ export function ShareCard({
             tileBorder="#60a5fa"
           />
 
-          {Array.from({ length: stepCount }, (_, index) => (
-            <MaskRow
-              key={index}
-              prev={path[index]}
-              next={path[index + 1]}
-            />
+          {Array.from({ length: middleSteps }, (_, index) => (
+            <StepRow key={index} length={wordLength} />
           ))}
 
           <WordRow

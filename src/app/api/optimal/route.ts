@@ -4,14 +4,14 @@ import {
   isValidPuzzleDate,
 } from "@/lib/puzzle";
 import { getIstanbulDateKey } from "@/lib/daily-clock";
-import { getShortestPathLength } from "@/lib/pathfinding";
+import { getShortestPath } from "@/lib/pathfinding";
 import { readSessionFromRequest } from "@/lib/game-session";
 import { enforceRateLimit, jsonError, safeServerError } from "@/lib/api-guard";
 
 export const dynamic = "force-dynamic";
 
 /**
- * En kısa adım sayısını yalnızca oturumda merdiven tamamlandıysa döner.
+ * En kısa yol yalnızca oturumda merdiven tamamlandıysa döner.
  */
 export async function GET(request: Request) {
   const limited = enforceRateLimit(request, "optimal", 30, 60_000);
@@ -39,11 +39,14 @@ export async function GET(request: Request) {
       return jsonError("En kısa yol bilgisi yalnızca tamamladıktan sonra.", 403);
     }
 
-    const optimalSteps =
-      getShortestPathLength(puzzle.startWord, puzzle.endWord) ??
-      puzzle.optimalSteps;
+    const optimalPath =
+      getShortestPath(puzzle.startWord, puzzle.endWord) ?? [
+        puzzle.startWord,
+        puzzle.endWord,
+      ];
+    const optimalSteps = Math.max(optimalPath.length - 1, 0);
 
-    return NextResponse.json({ optimalSteps });
+    return NextResponse.json({ optimalSteps, optimalPath });
   } catch (error) {
     return safeServerError("Bilgi alınamadı.", error);
   }

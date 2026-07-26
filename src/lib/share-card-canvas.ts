@@ -8,9 +8,8 @@ const COLORS = {
   text: "#f1f5f9",
   muted: "#94a3b8",
   accent: "#60a5fa",
-  orange: "#fb923c",
   success: "#34d399",
-  tileIdle: "#3b4c66",
+  stepFill: "rgba(96, 165, 250, 0.12)",
 };
 
 const FONT_BODY = "Inter, system-ui, sans-serif";
@@ -65,27 +64,31 @@ function drawWordRow(
   }
 }
 
-function drawMaskRow(
+/** Spoiler’sız ara basamak — tüm kutular aynı. */
+function drawStepRow(
   ctx: CanvasRenderingContext2D,
-  prev: string,
-  next: string,
+  length: number,
   x: number,
   y: number,
   tileSize: number,
   gap: number,
 ) {
-  for (let i = 0; i < next.length; i++) {
-    const changed = prev[i] !== next[i];
+  for (let i = 0; i < length; i++) {
     const tileX = x + i * (tileSize + gap);
     roundRect(ctx, tileX, y, tileSize, tileSize, 10);
-    ctx.fillStyle = changed ? COLORS.orange : COLORS.tileIdle;
+    ctx.fillStyle = COLORS.stepFill;
     ctx.fill();
+    ctx.strokeStyle = COLORS.border;
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
 }
 
 export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement {
-  const wordLength = input.path[0]?.length ?? 4;
-  const stepCount = Math.max(input.path.length - 1, 0);
+  const start = input.path[0] ?? "";
+  const end = input.path[input.path.length - 1] ?? "";
+  const wordLength = start.length || end.length || 4;
+  const stepCount = Math.max(input.steps - 1, 0);
 
   const width = 720;
   const outerInset = 24;
@@ -146,8 +149,6 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   ctx.fillText(`#${input.puzzleNumber}`, width / 2, headerY + 74);
 
   let y = headerY + headerHeight;
-  const start = input.path[0] ?? "";
-  const end = input.path[input.path.length - 1] ?? "";
 
   drawWordRow(
     ctx,
@@ -162,7 +163,7 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   y += tileSize + rowGap;
 
   for (let i = 0; i < stepCount; i++) {
-    drawMaskRow(ctx, input.path[i], input.path[i + 1], boardX, y, tileSize, gap);
+    drawStepRow(ctx, wordLength, boardX, y, tileSize, gap);
     y += tileSize + rowGap;
   }
 

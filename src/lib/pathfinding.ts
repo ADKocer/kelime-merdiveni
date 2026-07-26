@@ -32,10 +32,17 @@ function bfsPath(start: string, end: string): string[] | null {
   return null;
 }
 
-export function getShortestPathLength(startWord: string, endWord: string): number | null {
+export function getShortestPath(
+  startWord: string,
+  endWord: string,
+): string[] | null {
   const start = normalizeInput(startWord);
   const end = normalizeInput(endWord);
-  const path = bfsPath(start, end);
+  return bfsPath(start, end);
+}
+
+export function getShortestPathLength(startWord: string, endWord: string): number | null {
+  const path = getShortestPath(startWord, endWord);
   if (!path) return null;
   return path.length - 1;
 }

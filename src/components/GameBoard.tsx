@@ -80,6 +80,8 @@ export function GameBoard() {
   const [hintIndex, setHintIndex] = useState<number | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
   const [optimalSteps, setOptimalSteps] = useState<number | null>(null);
+  const [optimalPath, setOptimalPath] = useState<string[] | null>(null);
+  const [showOptimal, setShowOptimal] = useState(false);
 
   useEffect(() => {
     try {
@@ -109,9 +111,15 @@ export function GameBoard() {
         credentials: "include",
       });
       if (!res.ok) return;
-      const data = (await res.json()) as { optimalSteps?: number };
+      const data = (await res.json()) as {
+        optimalSteps?: number;
+        optimalPath?: string[];
+      };
       if (typeof data.optimalSteps === "number") {
         setOptimalSteps(data.optimalSteps);
+        if (Array.isArray(data.optimalPath) && data.optimalPath.length > 1) {
+          setOptimalPath(data.optimalPath);
+        }
         const existing = getDayRecords()[date];
         if (existing?.path && existing.path.length > 1) {
           const record =
@@ -162,6 +170,8 @@ export function GameBoard() {
           setHintIndex(null);
           setHintUsed(data.hintUsed ?? isHintUsed(data.date));
           setOptimalSteps(null);
+          setOptimalPath(null);
+          setShowOptimal(false);
 
           if (data.claimedPlayerName) {
             setPlayerName(data.claimedPlayerName);
@@ -647,27 +657,28 @@ export function GameBoard() {
             hintIndex={path.length === 1 ? hintIndex : null}
           />
 
-          {(completed ? path.slice(1, -1) : path.slice(1)).map((word, index) => (
-            <WordRow
-              key={`${word}-${index + 1}`}
-              word={word}
-              label={`#${index + 1}`}
-              highlight="step"
-              hintIndex={
-                hintIndex !== null &&
-                !completed &&
-                index === path.length - 2
-                  ? hintIndex
-                  : null
-              }
-            />
-          ))}
+          {path.slice(1).map((word, index) => {
+            const isLast = index === path.length - 2;
+            return (
+              <WordRow
+                key={`${word}-${index + 1}`}
+                word={word}
+                label={`#${index + 1}`}
+                highlight={completed && isLast ? "end" : "step"}
+                hintIndex={
+                  hintIndex !== null && !completed && isLast ? hintIndex : null
+                }
+              />
+            );
+          })}
 
-          <WordRow
-            word={puzzle.endWord}
-            label="Hedef"
-            highlight={completed ? "end" : "goal"}
-          />
+          {!completed && (
+            <WordRow
+              word={puzzle.endWord}
+              label="Hedef"
+              highlight="goal"
+            />
+          )}
         </div>
 
         {!completed && (
@@ -734,6 +745,55 @@ export function GameBoard() {
               {optimalSteps !== null && (
                 <p className="text-center text-sm text-ladder-muted">
                   Mümkün olan en kısa yol {optimalSteps} adımdı.
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOptimal((value) => !value);
+                  if (!optimalPath && puzzle) {
+                    void fetchOptimal(puzzle.date);
+                  }
+                }}
+                className="w-full rounded-lg border border-ladder-border px-4 py-2.5 text-sm font-medium text-ladder-text transition hover:border-ladder-text"
+              >
+                {showOptimal
+                  ? "En hızlı çözümü gizle"
+                  : "En hızlı çözümü gör"}
+              </button>
+
+              {showOptimal && optimalPath && optimalPath.length > 1 && (
+                <div className="flex flex-col gap-2 rounded-xl border border-ladder-border bg-ladder-bg/60 p-3">
+                  <p className="text-center text-xs font-medium text-ladder-muted">
+                    En kısa çözüm · {Math.max(optimalPath.length - 1, 0)} adım
+                  </p>
+                  {optimalPath.map((word, index) => (
+                    <WordRow
+                      key={`optimal-${word}-${index}`}
+                      word={word}
+                      label={
+                        index === 0
+                          ? "Başlangıç"
+                          : index === optimalPath.length - 1
+                            ? `#${index} · Hedef`
+                            : `#${index}`
+                      }
+                      highlight={
+                        index === 0
+                          ? "start"
+                          : index === optimalPath.length - 1
+                            ? "end"
+                            : "step"
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+
+              {showOptimal && !optimalPath && (
+                <p className="text-center text-xs text-ladder-muted">
+                  En hızlı çözüm yükleniyor…
                 </p>
               )}
 
