@@ -12,6 +12,8 @@
   --ladder-orange: #ea580c;
   --ladder-text: #0f172a;
   --ladder-muted: #64748b;
+  --ladder-glow: rgba(37, 99, 235, 0.12);
+  --ladder-dot: rgba(15, 23, 42, 0.06);
 }
 
 .dark {
@@ -24,6 +26,8 @@
   --ladder-orange: #fb923c;
   --ladder-text: #f1f5f9;
   --ladder-muted: #94a3b8;
+  --ladder-glow: rgba(96, 165, 250, 0.16);
+  --ladder-dot: rgba(241, 245, 249, 0.04);
 }
 
 html {
@@ -52,6 +56,15 @@ a,
   touch-action: manipulation;
 }
 
+/* Atmosphere */
+.page-atmosphere {
+  background-color: var(--ladder-bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, var(--ladder-glow), transparent 70%),
+    radial-gradient(circle at 1px 1px, var(--ladder-dot) 1px, transparent 0);
+  background-size: 100% 100%, 22px 22px;
+}
+
 @keyframes pop-in {
   from {
     opacity: 0;
@@ -63,8 +76,232 @@ a,
   }
 }
 
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes letter-flash {
+  0% {
+    color: inherit;
+    text-shadow: none;
+  }
+  15% {
+    color: var(--ladder-orange);
+    text-shadow:
+      0 0 8px color-mix(in srgb, var(--ladder-orange) 80%, transparent),
+      0 0 18px color-mix(in srgb, var(--ladder-orange) 45%, transparent);
+  }
+  70% {
+    color: var(--ladder-orange);
+    text-shadow:
+      0 0 8px color-mix(in srgb, var(--ladder-orange) 70%, transparent),
+      0 0 16px color-mix(in srgb, var(--ladder-orange) 35%, transparent);
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+@keyframes letter-celebrate {
+  0% {
+    color: inherit;
+    text-shadow: none;
+  }
+  12% {
+    color: var(--ladder-success);
+    text-shadow:
+      0 0 10px color-mix(in srgb, var(--ladder-success) 85%, transparent),
+      0 0 22px color-mix(in srgb, var(--ladder-success) 50%, transparent);
+  }
+  72% {
+    color: var(--ladder-success);
+    text-shadow:
+      0 0 10px color-mix(in srgb, var(--ladder-success) 75%, transparent),
+      0 0 20px color-mix(in srgb, var(--ladder-success) 40%, transparent);
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+@keyframes particle-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(
+        calc(var(--dx) * 0.65),
+        calc(var(--dy) * 0.65)
+      )
+      scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.3);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes celebrate-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ladder-success) 0%, transparent);
+  }
+  35% {
+    transform: scale(1.04);
+    box-shadow: 0 0 24px 2px color-mix(in srgb, var(--ladder-success) 35%, transparent);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ladder-success) 0%, transparent);
+  }
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes status-fade {
+  from {
+    opacity: 0.35;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes cta-press {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.97);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .animate-pop-in {
-  animation: pop-in 0.25s ease-out;
+  animation: pop-in 0.25s ease-out both;
+}
+
+.animate-step-in {
+  animation: step-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-letter-flash {
+  animation: letter-flash 1.35s ease-out both;
+}
+
+.animate-letter-celebrate {
+  animation: letter-celebrate 1.8s ease-out both;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.animate-celebrate {
+  position: relative;
+  overflow: visible;
+  animation: celebrate-pulse 1.7s ease-out both;
+}
+
+.celebrate-particles {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.celebrate-particle {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ladder-success);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ladder-success) 70%, transparent);
+  opacity: 0;
+  animation: particle-burst 1.55s ease-out forwards;
+}
+
+.animate-screen-in {
+  animation: screen-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-status-fade {
+  animation: status-fade 0.45s ease-out both;
+}
+
+.btn-cta {
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.btn-cta:active {
+  animation: cta-press 0.28s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in,
+  .animate-step-in,
+  .animate-letter-flash,
+  .animate-letter-celebrate,
+  .animate-shake,
+  .animate-celebrate,
+  .celebrate-particle,
+  .animate-screen-in,
+  .animate-status-fade,
+  .btn-cta:active {
+    animation: none !important;
+  }
+
+  .btn-cta {
+    transition: none;
+  }
 }
 
 @layer utilities {

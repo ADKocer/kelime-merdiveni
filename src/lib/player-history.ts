@@ -105,10 +105,21 @@ export function buildDayRecord(
   steps: number,
   path?: string[],
   optimalSteps?: number,
+  existingStatus?: CompletionStatus,
 ): DayRecord {
   const completedOn = getIstanbulDateKey();
+  // Daha önce gününde bitirildiyse sonradan bakınca turuncuya düşmesin
+  const status: CompletionStatus =
+    existingStatus === "onTime"
+      ? "onTime"
+      : existingStatus === "late"
+        ? "late"
+        : completedOn === puzzleDate
+          ? "onTime"
+          : "late";
+
   return {
-    status: completedOn === puzzleDate ? "onTime" : "late",
+    status,
     steps,
     path,
     optimalSteps,
@@ -123,10 +134,16 @@ export function markDayCompleted(
 ): DayRecord | null {
   if (typeof window === "undefined") return null;
 
-  const record = buildDayRecord(puzzleDate, steps, path, optimalSteps);
-
   try {
     const records = getDayRecords();
+    const existing = records[puzzleDate];
+    const record = buildDayRecord(
+      puzzleDate,
+      steps,
+      path ?? existing?.path,
+      optimalSteps ?? existing?.optimalSteps,
+      existing?.status,
+    );
     records[puzzleDate] = record;
     writeRecords(records);
     return record;

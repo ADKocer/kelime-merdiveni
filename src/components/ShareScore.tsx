@@ -1,12 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   blobToDataUrl,
   createShareCardBlob,
 } from "@/lib/share-card";
 import { getShareLinks } from "@/lib/share-score";
-import { ShareCard } from "./ShareCard";
 
 interface ShareScoreProps {
   puzzleNumber: number;
@@ -15,7 +14,6 @@ interface ShareScoreProps {
 }
 
 export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
-  const captureRef = useRef<HTMLDivElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const gameUrl =
@@ -32,7 +30,7 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
   );
 
   const buildBlob = useCallback(async () => {
-    return createShareCardBlob(captureRef.current, cardInput);
+    return createShareCardBlob(null, cardInput);
   }, [cardInput]);
 
   useEffect(() => {
@@ -60,14 +58,6 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
 
   return (
     <div className="w-full min-w-0 overflow-x-hidden rounded-xl border border-ladder-border bg-ladder-bg/60 p-3 sm:p-4">
-      <div
-        ref={captureRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 -z-10 w-[720px] -translate-x-full"
-      >
-        <ShareCard {...cardInput} />
-      </div>
-
       <p className="mb-1 font-medium text-ladder-text">Skorunu paylaş</p>
 
       {previewUrl ? (

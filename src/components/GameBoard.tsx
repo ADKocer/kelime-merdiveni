@@ -57,6 +57,14 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function findChangedLetterIndex(prev: string, next: string): number | null {
+  const len = Math.min(prev.length, next.length);
+  for (let i = 0; i < len; i++) {
+    if (prev[i] !== next[i]) return i;
+  }
+  return null;
+}
+
 export function GameBoard() {
   const [screen, setScreen] = useState<Screen>("home");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -82,6 +90,11 @@ export function GameBoard() {
   const [optimalSteps, setOptimalSteps] = useState<number | null>(null);
   const [optimalPath, setOptimalPath] = useState<string[] | null>(null);
   const [showOptimal, setShowOptimal] = useState(false);
+  const [optimalLoading, setOptimalLoading] = useState(false);
+  const [optimalError, setOptimalError] = useState<string | null>(null);
+  const [flashLetterIndex, setFlashLetterIndex] = useState<number | null>(null);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [celebrate, setCelebrate] = useState(false);
 
   useEffect(() => {
     try {
@@ -105,16 +118,36 @@ export function GameBoard() {
     return records;
   }, []);
 
-  const fetchOptimal = useCallback(async (date: string) => {
+  const fetchOptimal = useCallback(async (date: string, pathProof?: string[]) => {
+    setOptimalLoading(true);
+    setOptimalError(null);
     try {
-      const res = await fetch(`/api/optimal?date=${encodeURIComponent(date)}`, {
+      const proof =
+        pathProof && pathProof.length > 1
+          ? pathProof
+          : getDayRecords()[date]?.path;
+
+      const res = await fetch("/api/optimal", {
+        method: "POST",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date,
+          path: proof && proof.length > 1 ? proof : undefined,
+        }),
       });
-      if (!res.ok) return;
+
       const data = (await res.json()) as {
         optimalSteps?: number;
         optimalPath?: string[];
+        error?: string;
       };
+
+      if (!res.ok) {
+        setOptimalError(data.error ?? "En hızlı çözüm alınamadı.");
+        return;
+      }
+
       if (typeof data.optimalSteps === "number") {
         setOptimalSteps(data.optimalSteps);
         if (Array.isArray(data.optimalPath) && data.optimalPath.length > 1) {
@@ -134,13 +167,16 @@ export function GameBoard() {
               existing.steps,
               existing.path,
               data.optimalSteps,
+              existing.status,
             );
           setDayRecords((current) => ({ ...current, [date]: record }));
           setHistoryVersion((value) => value + 1);
         }
       }
     } catch {
-      /* ignore */
+      setOptimalError("En hızlı çözüm alınamadı.");
+    } finally {
+      setOptimalLoading(false);
     }
   }, []);
 
@@ -172,6 +208,10 @@ export function GameBoard() {
           setOptimalSteps(null);
           setOptimalPath(null);
           setShowOptimal(false);
+          setOptimalLoading(false);
+          setOptimalError(null);
+          setFlashLetterIndex(null);
+          setCelebrate(false);
 
           if (data.claimedPlayerName) {
             setPlayerName(data.claimedPlayerName);
@@ -187,7 +227,7 @@ export function GameBoard() {
             setPath(sessionPath);
             if (sessionPath[sessionPath.length - 1] === data.endWord) {
               setCompleted(true);
-              void fetchOptimal(data.date);
+              void fetchOptimal(data.date, sessionPath);
             } else {
               setCompleted(false);
             }
@@ -274,6 +314,7 @@ export function GameBoard() {
     const trimmed = input.trim();
     if (trimmed.length !== puzzle.wordLength) {
       setError(`${puzzle.wordLength} harfli bir kelime girin.`);
+      setShakeKey((value) => value + 1);
       return;
     }
 
@@ -296,12 +337,19 @@ export function GameBoard() {
             ? "Oyun oturumu bulunamadı. Sayfayı yenile."
             : "Geçersiz hamle."),
       );
+      setShakeKey((value) => value + 1);
       return;
     }
 
+    const previousWord = path[path.length - 1] ?? puzzle.startWord;
     const nextPath = result.path ?? path;
+    const acceptedWord = nextPath[nextPath.length - 1] ?? trimmed;
+    const changed = findChangedLetterIndex(previousWord, acceptedWord);
+
     setPath(nextPath);
     setInput("");
+    setFlashLetterIndex(changed);
+    window.setTimeout(() => setFlashLetterIndex(null), 1400);
 
     if (result.completed) {
       const finalSteps = nextPath.length - 1;
@@ -321,8 +369,10 @@ export function GameBoard() {
       setDayRecords((current) => ({ ...current, [puzzle.date]: record }));
       setHistoryVersion((value) => value + 1);
       setCompleted(true);
+      setCelebrate(true);
+      window.setTimeout(() => setCelebrate(false), 1900);
       setMessage("Tebrikler! Hedefe ulaştınız.");
-      void fetchOptimal(puzzle.date);
+      void fetchOptimal(puzzle.date, nextPath);
     } else {
       setHintIndex(null);
     }
@@ -490,6 +540,7 @@ export function GameBoard() {
               existing.steps,
               existing.path,
               data.optimalSteps,
+              existing.status,
             );
           setDayRecords((current) => ({
             ...current,
@@ -547,7 +598,7 @@ export function GameBoard() {
 
   if (screen === "home") {
     return (
-      <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-x-hidden sm:gap-4">
+      <div className="animate-screen-in flex min-w-0 flex-1 flex-col gap-3 overflow-x-hidden sm:gap-4">
         <header className="shrink-0 text-center">
           <div className="mb-2 flex justify-end">
             <ThemeToggle />
@@ -557,7 +608,7 @@ export function GameBoard() {
           </h1>
         </header>
 
-        <section className="rounded-2xl border border-ladder-border bg-ladder-surface p-4 shadow-xl shadow-black/15 dark:shadow-black/40 sm:p-5">
+        <section className="rounded-2xl border border-ladder-border bg-ladder-surface/95 p-4 shadow-xl shadow-black/15 backdrop-blur-[2px] dark:shadow-black/40 sm:p-5">
           <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
             <div>
               <p className="text-xs text-ladder-muted sm:text-sm">
@@ -594,7 +645,7 @@ export function GameBoard() {
           <button
             type="button"
             onClick={() => openPlay()}
-            className="w-full rounded-xl bg-ladder-accent py-3.5 text-base font-semibold text-white transition active:scale-[0.98] active:bg-blue-500 sm:py-4 sm:text-lg"
+            className="btn-cta w-full rounded-xl bg-ladder-accent py-3.5 text-base font-semibold text-white active:bg-blue-500 sm:py-4 sm:text-lg"
           >
             {todayCompleted ? "Sonucu gör" : "Oyuna başla"}
           </button>
@@ -603,7 +654,7 @@ export function GameBoard() {
         <button
           type="button"
           onClick={openLeaderboard}
-          className="w-full rounded-xl border border-ladder-border bg-ladder-surface py-3.5 text-base font-medium text-ladder-text transition active:scale-[0.98] hover:border-ladder-text sm:py-4"
+          className="btn-cta w-full rounded-xl border border-ladder-border bg-ladder-surface/95 py-3.5 text-base font-medium text-ladder-text backdrop-blur-[2px] hover:border-ladder-text sm:py-4"
         >
           Onur tablosu
         </button>
@@ -625,7 +676,7 @@ export function GameBoard() {
   }
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
+    <div className="animate-screen-in flex min-w-0 flex-1 flex-col overflow-x-hidden">
       <div className="mb-3 flex items-center gap-2 sm:mb-4">
         <button
           type="button"
@@ -648,13 +699,14 @@ export function GameBoard() {
         </div>
       </div>
 
-      <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface p-3 shadow-xl shadow-black/15 dark:shadow-black/40 sm:p-5">
+      <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface/95 p-3 shadow-xl shadow-black/15 backdrop-blur-[2px] dark:shadow-black/40 sm:p-5">
         <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:gap-3">
           <WordRow
             word={puzzle.startWord}
             label="Başlangıç"
             highlight="start"
             hintIndex={path.length === 1 ? hintIndex : null}
+            animateIn={false}
           />
 
           {path.slice(1).map((word, index) => {
@@ -668,6 +720,9 @@ export function GameBoard() {
                 hintIndex={
                   hintIndex !== null && !completed && isLast ? hintIndex : null
                 }
+                flashIndex={isLast ? flashLetterIndex : null}
+                animateIn={isLast && flashLetterIndex !== null}
+                celebrate={completed && isLast && celebrate}
               />
             );
           })}
@@ -677,12 +732,18 @@ export function GameBoard() {
               word={puzzle.endWord}
               label="Hedef"
               highlight="goal"
+              animateIn={false}
             />
           )}
         </div>
 
         {!completed && (
-          <div className="animate-pop-in mb-4 rounded-xl border border-dashed border-ladder-border p-3 sm:mb-5 sm:p-4">
+          <div
+            key={shakeKey}
+            className={`mb-4 rounded-xl border border-dashed border-ladder-border p-3 sm:mb-5 sm:p-4 ${
+              shakeKey > 0 ? "animate-shake" : "animate-pop-in"
+            }`}
+          >
             <label className="mb-3 block text-center text-sm text-ladder-muted">
               Sıradaki kelime ({puzzle.wordLength} harf)
             </label>
@@ -704,10 +765,11 @@ export function GameBoard() {
 
         {(error || message) && (
           <div
+            key={error ? `err-${shakeKey}` : "msg"}
             className={`mb-4 rounded-lg px-4 py-3 text-sm ${
               error
-                ? "border border-red-500/60 bg-red-500/20 text-red-700 dark:text-red-200"
-                : "border border-green-500/60 bg-green-500/20 text-green-800 dark:text-green-200"
+                ? "animate-shake border border-red-500/60 bg-red-500/20 text-red-700 dark:text-red-200"
+                : "animate-pop-in border border-green-500/60 bg-green-500/20 text-green-800 dark:text-green-200"
             }`}
           >
             {error ?? message}
@@ -751,16 +813,22 @@ export function GameBoard() {
               <button
                 type="button"
                 onClick={() => {
-                  setShowOptimal((value) => !value);
-                  if (!optimalPath && puzzle) {
-                    void fetchOptimal(puzzle.date);
-                  }
+                  setShowOptimal((value) => {
+                    const next = !value;
+                    if (next && !optimalPath && puzzle) {
+                      void fetchOptimal(puzzle.date, path);
+                    }
+                    return next;
+                  });
                 }}
-                className="w-full rounded-lg border border-ladder-border px-4 py-2.5 text-sm font-medium text-ladder-text transition hover:border-ladder-text"
+                disabled={optimalLoading}
+                className="w-full rounded-lg border border-ladder-border px-4 py-2.5 text-sm font-medium text-ladder-text transition hover:border-ladder-text disabled:opacity-60"
               >
                 {showOptimal
                   ? "En hızlı çözümü gizle"
-                  : "En hızlı çözümü gör"}
+                  : optimalLoading
+                    ? "Yükleniyor…"
+                    : "En hızlı çözümü gör"}
               </button>
 
               {showOptimal && optimalPath && optimalPath.length > 1 && (
@@ -786,14 +854,21 @@ export function GameBoard() {
                             ? "end"
                             : "step"
                       }
+                      animateIn={false}
                     />
                   ))}
                 </div>
               )}
 
-              {showOptimal && !optimalPath && (
+              {showOptimal && !optimalPath && optimalLoading && (
                 <p className="text-center text-xs text-ladder-muted">
                   En hızlı çözüm yükleniyor…
+                </p>
+              )}
+
+              {showOptimal && !optimalPath && !optimalLoading && optimalError && (
+                <p className="text-center text-xs text-red-600 dark:text-red-300">
+                  {optimalError}
                 </p>
               )}
 

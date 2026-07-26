@@ -195,16 +195,21 @@ export function ProgressCalendar({
             status !== "future" &&
             Boolean(onSelectDate);
 
-          const className = `flex aspect-square items-center justify-center rounded-md border text-xs font-semibold sm:rounded-lg sm:text-sm ${STATUS_STYLES[status]} ${
+          const statusMotion =
+            status === "completed" || status === "late"
+              ? "animate-status-fade"
+              : "";
+
+          const className = `flex aspect-square items-center justify-center rounded-md border text-xs font-semibold transition-all duration-300 sm:rounded-lg sm:text-sm ${STATUS_STYLES[status]} ${statusMotion} ${
             isPlayable
-              ? "cursor-pointer transition hover:brightness-110 active:scale-95"
+              ? "cursor-pointer hover:brightness-110 active:scale-95"
               : ""
           }`;
 
           if (isPlayable) {
             return (
               <button
-                key={dateKey}
+                key={`${dateKey}-${status}-${refreshKey}`}
                 type="button"
                 title={dateKey}
                 onClick={() => onSelectDate?.(dateKey)}
@@ -216,7 +221,11 @@ export function ProgressCalendar({
           }
 
           return (
-            <div key={dateKey} title={dateKey} className={className}>
+            <div
+              key={`${dateKey}-${status}-${refreshKey}`}
+              title={dateKey}
+              className={className}
+            >
               {status === "empty" ? "" : dayNumber}
             </div>
           );

@@ -46,7 +46,6 @@ Başlıca bileşenler:
 |-------|--------|
 | [Next.js](https://nextjs.org/) | MIT |
 | [React](https://react.dev/) | MIT |
-| [html2canvas](https://html2canvas.hertzen.com/) | MIT |
 | [Tailwind CSS](https://tailwindcss.com/) | MIT |
 
 Tam bağımlılık listesi için: `npm install` sonrası `node_modules` içindeki ilgili
