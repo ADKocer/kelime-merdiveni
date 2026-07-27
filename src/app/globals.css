@@ -130,8 +130,10 @@ a,
       0 0 20px color-mix(in srgb, var(--ladder-success) 40%, transparent);
   }
   100% {
-    color: inherit;
-    text-shadow: none;
+    color: var(--ladder-success);
+    text-shadow:
+      0 0 10px color-mix(in srgb, var(--ladder-success) 75%, transparent),
+      0 0 20px color-mix(in srgb, var(--ladder-success) 40%, transparent);
   }
 }
 
@@ -239,6 +241,13 @@ a,
   text-shadow:
     0 0 8px color-mix(in srgb, var(--ladder-orange) 65%, transparent),
     0 0 14px color-mix(in srgb, var(--ladder-orange) 30%, transparent);
+}
+
+.letter-celebrated {
+  color: var(--ladder-success);
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--ladder-success) 75%, transparent),
+    0 0 20px color-mix(in srgb, var(--ladder-success) 40%, transparent);
 }
 
 .animate-letter-celebrate {

@@ -793,6 +793,7 @@ export function GameBoard() {
                   changedIndex={changedIndex}
                   animateIn={isLast}
                   celebrate={completed && isLast && celebrate}
+                  glowAllLetters={completed && isLast}
                   {...getMeaningProps(word)}
                 />
               </div>

@@ -12,6 +12,8 @@ interface WordRowProps {
   animateIn?: boolean;
   /** Tamamlama pulse */
   celebrate?: boolean;
+  /** Son kelime: tüm harfler yeşil (turuncu vurgu yok) */
+  glowAllLetters?: boolean;
   /** Tamamlandıktan sonra anlam gösterimi */
   meaningEnabled?: boolean;
   meaning?: string | null;
@@ -40,6 +42,7 @@ export function WordRow({
   changedIndex = null,
   animateIn = true,
   celebrate = false,
+  glowAllLetters = false,
   meaningEnabled = false,
   meaning = null,
   meaningOpen = false,
@@ -94,23 +97,25 @@ export function WordRow({
       <span className="relative z-[1] min-w-0 shrink font-display text-lg tracking-[0.12em] sm:text-2xl sm:tracking-[0.3em]">
         {word.split("").map((char, index) => {
           const isHint = hintIndex === index;
-          const isChanged = changedIndex === index;
+          const isChanged = !glowAllLetters && changedIndex === index;
+          let letterClass: string | undefined;
+          if (glowAllLetters) {
+            letterClass = celebrate
+              ? "animate-letter-celebrate"
+              : "letter-celebrated";
+          } else if (celebrate) {
+            letterClass = "animate-letter-celebrate";
+          } else if (isChanged) {
+            letterClass = animateIn ? "animate-letter-flash" : "letter-changed";
+          } else if (isHint) {
+            letterClass = "text-ladder-orange";
+          }
           return (
             <span
               key={index}
-              className={
-                celebrate && !isChanged
-                  ? "animate-letter-celebrate"
-                  : isChanged
-                    ? animateIn
-                      ? "animate-letter-flash"
-                      : "letter-changed"
-                    : isHint
-                      ? "text-ladder-orange"
-                      : undefined
-              }
+              className={letterClass}
               style={
-                celebrate
+                glowAllLetters && celebrate
                   ? { animationDelay: `${index * 55}ms` }
                   : undefined
               }
