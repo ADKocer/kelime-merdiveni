@@ -29,12 +29,30 @@ export const metadata: Metadata = {
   title: "Kelime Merdiveni - Word Ladder Türkçe",
   description:
     "Dünyaca ünlü Word Ladder oyununun Türkçe versiyonu Kelime Merdiveni! Başlangıç kelimesinden hedef kelimeye sadece tek harf değiştirerek ulaş. Hemen Word Ladder Türkçe oyna!",
+  alternates: {
+    canonical: "https://kelimemerdiveni.com",
+  },
   openGraph: {
     title: "Kelime Merdiveni - Günlük Kelime Oyunu",
     description: "Bugünün kelime merdivenini sen kaç adımda ineceksin?",
     url: "https://kelimemerdiveni.com",
+    siteName: "Kelime Merdiveni",
     type: "website",
     locale: "tr_TR",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Kelime Merdiveni - Günlük Türkçe Kelime Oyunu",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kelime Merdiveni - Günlük Kelime Oyunu",
+    description: "Bugünün kelime merdivenini sen kaç adımda ineceksin?",
+    images: ["/og-image.png"],
   },
   verification: {
     google: "Gkcmp88GE5PcHSSljZDgkwRVujPDUkoQjJ5yzFOluHk",
