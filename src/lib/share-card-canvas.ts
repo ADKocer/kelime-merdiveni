@@ -98,13 +98,15 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   const gap = 10;
   const rowGap = 14;
   const headerHeight = 110;
+  const footerHeight = 48;
 
   const boardWidth = wordLength * tileSize + (wordLength - 1) * gap;
   const boardX = (width - boardWidth) / 2;
   const rows = stepCount + 2;
   const boardHeight = rows * tileSize + (rows - 1) * rowGap;
 
-  const innerHeight = innerPadTop + headerHeight + boardHeight + innerPadBottom;
+  const innerHeight =
+    innerPadTop + headerHeight + boardHeight + footerHeight + innerPadBottom;
   const height = outerInset * 2 + innerHeight;
 
   const canvas = document.createElement("canvas");
@@ -177,6 +179,18 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
     "rgba(52, 211, 153, 0.25)",
     COLORS.success,
   );
+  y += tileSize;
+
+  const showStreak = typeof input.streak === "number" && input.streak >= 2;
+  const footerText = showStreak
+    ? `${input.steps} adım · 🔥 ${input.streak} gün seri`
+    : `${input.steps} adım`;
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = `600 22px ${FONT_BODY}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(footerText, width / 2, y + 34);
 
   return canvas;
 }

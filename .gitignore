@@ -37,6 +37,10 @@ yarn-error.log*
 /data/local-leaderboard.db
 /data/local-leaderboard.db-*
 
+# wiktionary dump (build:meanings ile indirilir)
+/data/.trwiktionary-raw.jsonl.gz
+/data/.kaikki-turkish.jsonl.gz
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

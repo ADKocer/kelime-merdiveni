@@ -6,12 +6,17 @@ interface WordRowProps {
   label: string;
   highlight?: "start" | "end" | "goal" | "step" | "default";
   hintIndex?: number | null;
-  /** Değişen harfin flash animasyonu */
-  flashIndex?: number | null;
+  /** Değişen harf (kalıcı turuncu vurgu) */
+  changedIndex?: number | null;
   /** Yeni basamak kayarak gelsin */
   animateIn?: boolean;
   /** Tamamlama pulse */
   celebrate?: boolean;
+  /** Tamamlandıktan sonra anlam gösterimi */
+  meaningEnabled?: boolean;
+  meaning?: string | null;
+  meaningOpen?: boolean;
+  onToggleMeaning?: () => void;
 }
 
 const PARTICLE_OFFSETS = [
@@ -32,9 +37,13 @@ export function WordRow({
   label,
   highlight = "default",
   hintIndex = null,
-  flashIndex = null,
+  changedIndex = null,
   animateIn = true,
   celebrate = false,
+  meaningEnabled = false,
+  meaning = null,
+  meaningOpen = false,
+  onToggleMeaning,
 }: WordRowProps) {
   const styles = {
     start: "border-ladder-accent bg-ladder-accent/30",
@@ -52,10 +61,15 @@ export function WordRow({
         : "animate-pop-in"
       : "";
 
-  return (
-    <div
-      className={`flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors duration-300 sm:px-4 sm:py-3 ${styles[highlight]} ${motionClass}`}
-    >
+  const canShowMeaning = meaningEnabled && Boolean(meaning) && onToggleMeaning;
+  const rowClassName = `relative flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors duration-300 sm:px-4 sm:py-3 ${styles[highlight]} ${motionClass} ${
+    canShowMeaning
+      ? "cursor-pointer hover:border-ladder-text/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ladder-accent"
+      : ""
+  } ${meaningOpen ? "ring-1 ring-ladder-accent/60" : ""}`;
+
+  const rowContent = (
+    <>
       {celebrate && (
         <span className="celebrate-particles" aria-hidden="true">
           {PARTICLE_OFFSETS.map((particle, index) => (
@@ -80,15 +94,17 @@ export function WordRow({
       <span className="relative z-[1] min-w-0 shrink font-display text-lg tracking-[0.12em] sm:text-2xl sm:tracking-[0.3em]">
         {word.split("").map((char, index) => {
           const isHint = hintIndex === index;
-          const isFlash = flashIndex === index;
+          const isChanged = changedIndex === index;
           return (
             <span
               key={index}
               className={
-                celebrate
+                celebrate && !isChanged
                   ? "animate-letter-celebrate"
-                  : isFlash
-                    ? "animate-letter-flash"
+                  : isChanged
+                    ? animateIn
+                      ? "animate-letter-flash"
+                      : "letter-changed"
                     : isHint
                       ? "text-ladder-orange"
                       : undefined
@@ -104,6 +120,30 @@ export function WordRow({
           );
         })}
       </span>
+    </>
+  );
+
+  return (
+    <div className="flex min-w-0 flex-col gap-0">
+      {canShowMeaning ? (
+        <button
+          type="button"
+          onClick={onToggleMeaning}
+          aria-expanded={meaningOpen}
+          aria-label={`${toTurkishUpperCase(word)} anlamını ${meaningOpen ? "gizle" : "göster"}`}
+          className={rowClassName}
+        >
+          {rowContent}
+        </button>
+      ) : (
+        <div className={rowClassName}>{rowContent}</div>
+      )}
+
+      {meaningOpen && meaning && (
+        <p className="animate-pop-in px-1 pt-2 text-sm leading-relaxed text-ladder-muted">
+          {meaning}
+        </p>
+      )}
     </div>
   );
 }

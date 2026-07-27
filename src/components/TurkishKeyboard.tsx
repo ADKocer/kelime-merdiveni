@@ -48,7 +48,7 @@ const KEY_CLASSES = {
 
   mobile:
 
-    "flex h-14 min-h-[3.5rem] min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/90 text-lg font-semibold text-ladder-text transition active:scale-[0.97] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40",
+    "flex h-[3.25rem] min-h-[3.25rem] min-w-0 touch-manipulation items-center justify-center rounded-xl border border-ladder-border bg-ladder-bg/90 text-xl font-semibold text-ladder-text transition active:scale-[0.96] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40",
 
   desktop:
 
@@ -72,7 +72,7 @@ function KeyboardRows({
 
 }: KeyboardRowsProps) {
 
-  const rowGap = variant === "mobile" ? "gap-1.5" : "gap-1";
+  const rowGap = variant === "mobile" ? "gap-2" : "gap-1";
 
   const keyClass = KEY_CLASSES[variant];
 
@@ -154,11 +154,11 @@ function ActionRow({
 
 }) {
 
-  const heightClass = variant === "mobile" ? "h-14 min-h-[3.5rem]" : "h-11";
+  const heightClass = variant === "mobile" ? "h-[3.25rem] min-h-[3.25rem]" : "h-11";
 
   const textClass = variant === "mobile" ? "text-base" : "text-sm sm:text-base";
 
-  const gapClass = variant === "mobile" ? "gap-1.5" : "gap-1.5";
+  const gapClass = variant === "mobile" ? "gap-2" : "gap-1.5";
 
 
 
@@ -176,7 +176,7 @@ function ActionRow({
 
         onClick={onBackspace}
 
-        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-lg border border-ladder-border bg-ladder-bg/90 px-2 ${textClass} font-medium text-ladder-muted transition active:scale-[0.97] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40`}
+        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-xl border border-ladder-border bg-ladder-bg/90 px-2 ${textClass} font-medium text-ladder-muted transition active:scale-[0.96] active:bg-ladder-border/70 disabled:cursor-not-allowed disabled:opacity-40`}
 
         aria-label="Sil"
 
@@ -196,7 +196,7 @@ function ActionRow({
 
         onClick={onEnter}
 
-        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-lg bg-ladder-accent px-3 ${textClass} font-semibold text-white transition active:scale-[0.97] active:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40`}
+        className={`flex ${heightClass} min-w-0 touch-manipulation items-center justify-center rounded-xl bg-ladder-accent px-3 ${textClass} font-semibold text-white transition active:scale-[0.96] active:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40`}
 
         aria-label="Kelimeyi ekle"
 
@@ -232,7 +232,7 @@ export function TurkishKeyboard({
 
     <div className="w-full max-w-full select-none overflow-hidden" aria-label="Türkçe klavye">
 
-      <div className="space-y-1.5 sm:hidden">
+      <div className="space-y-2 sm:hidden">
 
         <KeyboardRows
 

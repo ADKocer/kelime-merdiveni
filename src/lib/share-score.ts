@@ -5,29 +5,53 @@ export interface ShareScoreInput {
   path: string[];
   steps: number;
   gameUrl?: string;
+  puzzleDate?: string;
+  streak?: number;
 }
 
-function getShareUrl(gameUrl?: string): string {
-  return gameUrl ?? `https://${SHARE_SITE}`;
+function getBaseUrl(gameUrl?: string): string {
+  return (gameUrl ?? `https://${SHARE_SITE}`).replace(/\/$/, "");
+}
+
+/** Belirli bir merdiveni açan düello (arkadaşını yen) linki. */
+export function getDuelUrl(puzzleDate?: string, gameUrl?: string): string {
+  const base = getBaseUrl(gameUrl);
+  return puzzleDate ? `${base}/?merdiven=${puzzleDate}` : base;
+}
+
+/** Spoiler'sız emoji merdiven: başlangıç 🟦, ara ⬜, hedef 🟩. */
+export function buildEmojiLadder(steps: number): string {
+  const middle = Math.max(steps - 1, 0);
+  return `🟦${"⬜".repeat(middle)}🟩`;
 }
 
 export function buildShareText({
   puzzleNumber,
-}: Pick<ShareScoreInput, "puzzleNumber">): string {
-  const url = getShareUrl();
+  steps,
+  puzzleDate,
+  streak,
+  gameUrl,
+}: Omit<ShareScoreInput, "path">): string {
+  const url = getDuelUrl(puzzleDate, gameUrl);
+  const ladder = buildEmojiLadder(steps);
+  const stepLabel = `${steps} adım`;
+  const streakLabel =
+    typeof streak === "number" && streak >= 2 ? ` · 🔥 ${streak} gün` : "";
 
   return [
     `Kelime Merdiveni #${puzzleNumber} 🪜`,
     "",
-    "Sen daha az adımla yapabilecek misin?",
+    `${ladder}  (${stepLabel}${streakLabel})`,
     "",
-    `Buradan oyna: ${url}`,
+    "Sen daha az adımda inebilir misin?",
+    "",
+    url,
   ].join("\n");
 }
 
 export function getShareLinks(input: ShareScoreInput) {
   const text = buildShareText(input);
-  const url = getShareUrl(input.gameUrl);
+  const url = getDuelUrl(input.puzzleDate, input.gameUrl);
   const title = `Kelime Merdiveni #${input.puzzleNumber}`;
 
   return {

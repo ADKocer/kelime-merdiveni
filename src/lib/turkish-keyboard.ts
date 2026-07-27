@@ -5,14 +5,18 @@ export const TURKISH_QWERTY_ROWS = [
   ["z", "x", "c", "v", "b", "n", "m", "ö", "ç"],
 ] as const;
 
-/** Mobilde daha az sütun — tuşlar geniş ve dokunması kolay. */
+/**
+ * Mobil: q/w/x yok (oyun sözlüğünde kullanılmıyor), en fazla 8 tuş/satır.
+ * Daha geniş dokunma alanı, yanlış basmayı azaltır.
+ */
 export const TURKISH_QWERTY_ROWS_MOBILE = [
-  ["q", "w", "e", "r", "t", "y", "u", "ı", "o", "p"],
-  ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ş", "i"],
-  ["z", "x", "c", "v", "b", "n", "m", "ö", "ç", "ğ", "ü"],
+  ["e", "r", "t", "y", "u", "ı", "o", "p"],
+  ["a", "s", "d", "f", "g", "h", "j", "k"],
+  ["l", "ş", "i", "z", "c", "v", "b", "n"],
+  ["m", "ö", "ç", "ğ", "ü"],
 ] as const;
 
 export const TURKISH_ROW_GRID_COLS = {
   desktop: [12, 11, 9],
-  mobile: [10, 11, 11],
+  mobile: [8, 8, 8, 5],
 } as const;

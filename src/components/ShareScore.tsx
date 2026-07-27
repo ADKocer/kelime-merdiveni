@@ -12,9 +12,17 @@ interface ShareScoreProps {
   puzzleNumber: number;
   path: string[];
   steps: number;
+  puzzleDate?: string;
+  streak?: number;
 }
 
-export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
+export function ShareScore({
+  puzzleNumber,
+  path,
+  steps,
+  puzzleDate,
+  streak,
+}: ShareScoreProps) {
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -24,13 +32,14 @@ export function ShareScore({ puzzleNumber, path, steps }: ShareScoreProps) {
     typeof window !== "undefined" ? window.location.origin : "";
 
   const cardInput = useMemo(
-    () => ({ puzzleNumber, path, steps }),
-    [path, puzzleNumber, steps],
+    () => ({ puzzleNumber, path, steps, streak }),
+    [path, puzzleNumber, steps, streak],
   );
 
   const links = useMemo(
-    () => getShareLinks({ puzzleNumber, path, steps, gameUrl }),
-    [gameUrl, path, puzzleNumber, steps],
+    () =>
+      getShareLinks({ puzzleNumber, path, steps, gameUrl, puzzleDate, streak }),
+    [gameUrl, path, puzzleNumber, steps, puzzleDate, streak],
   );
 
   const showHint = (message: string) => {

@@ -105,8 +105,10 @@ a,
       0 0 16px color-mix(in srgb, var(--ladder-orange) 35%, transparent);
   }
   100% {
-    color: inherit;
-    text-shadow: none;
+    color: var(--ladder-orange);
+    text-shadow:
+      0 0 8px color-mix(in srgb, var(--ladder-orange) 70%, transparent),
+      0 0 16px color-mix(in srgb, var(--ladder-orange) 35%, transparent);
   }
 }
 
@@ -230,6 +232,13 @@ a,
 
 .animate-letter-flash {
   animation: letter-flash 1.35s ease-out both;
+}
+
+.letter-changed {
+  color: var(--ladder-orange);
+  text-shadow:
+    0 0 8px color-mix(in srgb, var(--ladder-orange) 65%, transparent),
+    0 0 14px color-mix(in srgb, var(--ladder-orange) 30%, transparent);
 }
 
 .animate-letter-celebrate {

@@ -1,4 +1,4 @@
-import { getIstanbulDateKey } from "./daily-clock";
+import { GAME_LAUNCH_DATE, getIstanbulDateKey } from "./daily-clock";
 
 const COMPLETED_DAYS_KEY = "kelime-merdiveni-completed-days";
 
@@ -124,6 +124,55 @@ export function buildDayRecord(
     path,
     optimalSteps,
   };
+}
+
+function previousDateKey(dateKey: string): string {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() - 1);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Bugüne (veya bugün henüz oynanmadıysa düne) kadar üst üste çözülen
+ * merdiven sayısı. Seri, bugün oynanmasa da bir gün daha "canlı" kalır.
+ */
+export function getCurrentStreak(
+  records: Record<string, DayRecord>,
+  todayKey = getIstanbulDateKey(),
+): number {
+  let cursor = records[todayKey] ? todayKey : previousDateKey(todayKey);
+  let streak = 0;
+
+  while (cursor >= GAME_LAUNCH_DATE && records[cursor]) {
+    streak += 1;
+    cursor = previousDateKey(cursor);
+  }
+
+  return streak;
+}
+
+/** Şimdiye kadarki en uzun kesintisiz seri. */
+export function getBestStreak(records: Record<string, DayRecord>): number {
+  const dates = Object.keys(records)
+    .filter((dateKey) => dateKey >= GAME_LAUNCH_DATE)
+    .sort();
+
+  let best = 0;
+  let current = 0;
+  let previous: string | null = null;
+
+  for (const dateKey of dates) {
+    if (previous && previousDateKey(dateKey) === previous) {
+      current += 1;
+    } else {
+      current = 1;
+    }
+    if (current > best) best = current;
+    previous = dateKey;
+  }
+
+  return best;
 }
 
 export function markDayCompleted(

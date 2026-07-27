@@ -4,11 +4,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { isHintUsed, markHintUsed } from "@/lib/hint-storage";
 import {
   buildDayRecord,
+  getCurrentStreak,
   getDayRecords,
   markDayCompleted,
   saveDayRecords,
   type DayRecord,
 } from "@/lib/player-history";
+import { GAME_LAUNCH_DATE, getIstanbulDateKey } from "@/lib/daily-clock";
+import {
+  getWordMeaning,
+  loadWordMeanings,
+  turkishLower,
+} from "@/lib/word-meanings";
 import {
   sanitizeWordInput,
   TURKISH_LETTER,
@@ -18,6 +25,7 @@ import { DailyCountdown } from "./DailyCountdown";
 import { LeaderboardModal } from "./LeaderboardModal";
 import { ProgressCalendar } from "./ProgressCalendar";
 import { ShareScore } from "./ShareScore";
+import { StepArrow } from "./StepArrow";
 import { ThemeToggle } from "./ThemeToggle";
 import { TurkishKeyboard } from "./TurkishKeyboard";
 import { WordInputTiles } from "./WordInputTiles";
@@ -92,9 +100,10 @@ export function GameBoard() {
   const [showOptimal, setShowOptimal] = useState(false);
   const [optimalLoading, setOptimalLoading] = useState(false);
   const [optimalError, setOptimalError] = useState<string | null>(null);
-  const [flashLetterIndex, setFlashLetterIndex] = useState<number | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
+  const [meanings, setMeanings] = useState<Record<string, string> | null>(null);
+  const [openMeaningWord, setOpenMeaningWord] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -104,6 +113,54 @@ export function GameBoard() {
       // localStorage kullanılamıyorsa sessizce devam et
     }
   }, []);
+
+  // Düello / arkadaşını yen linki: ?merdiven=YYYY-MM-DD ile o günü aç.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const dateParam = new URLSearchParams(window.location.search).get(
+      "merdiven",
+    );
+    if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return;
+
+    const today = getIstanbulDateKey();
+    if (dateParam < GAME_LAUNCH_DATE || dateParam > today) return;
+
+    setActivePuzzleDate(dateParam);
+    setScreen("play");
+  }, []);
+
+  useEffect(() => {
+    if (screen !== "play" || !puzzle) return;
+
+    setOpenMeaningWord(null);
+    void loadWordMeanings()
+      .then(setMeanings)
+      .catch(() => setMeanings({}));
+  }, [screen, puzzle]);
+
+  const getMeaningProps = useCallback(
+    (word: string) => {
+      if (!meanings) {
+        return {};
+      }
+
+      const key = turkishLower(word);
+      const meaning = getWordMeaning(word, meanings);
+
+      return {
+        meaningEnabled: true,
+        meaning,
+        meaningOpen: openMeaningWord === key,
+        onToggleMeaning: meaning
+          ? () =>
+              setOpenMeaningWord((current) => (current === key ? null : key))
+          : undefined,
+      };
+    },
+    [meanings, openMeaningWord],
+  );
+
 
   useEffect(() => {
     const records = getDayRecords();
@@ -210,7 +267,6 @@ export function GameBoard() {
           setShowOptimal(false);
           setOptimalLoading(false);
           setOptimalError(null);
-          setFlashLetterIndex(null);
           setCelebrate(false);
 
           if (data.claimedPlayerName) {
@@ -266,6 +322,10 @@ export function GameBoard() {
   const stepCount = Math.max(path.length - 1, 0);
   const todayRecord = todayKey ? dayRecords[todayKey] : undefined;
   const todayCompleted = Boolean(todayRecord);
+  const currentStreak = useMemo(
+    () => (todayKey ? getCurrentStreak(dayRecords, todayKey) : 0),
+    [dayRecords, todayKey],
+  );
 
   const formattedDate = useMemo(() => {
     if (!puzzle) return "";
@@ -341,15 +401,10 @@ export function GameBoard() {
       return;
     }
 
-    const previousWord = path[path.length - 1] ?? puzzle.startWord;
     const nextPath = result.path ?? path;
-    const acceptedWord = nextPath[nextPath.length - 1] ?? trimmed;
-    const changed = findChangedLetterIndex(previousWord, acceptedWord);
 
     setPath(nextPath);
     setInput("");
-    setFlashLetterIndex(changed);
-    window.setTimeout(() => setFlashLetterIndex(null), 1400);
 
     if (result.completed) {
       const finalSteps = nextPath.length - 1;
@@ -618,6 +673,11 @@ export function GameBoard() {
                 Merdiven #{puzzle.puzzleNumber}
               </p>
               <p className="text-sm text-ladder-muted">{formattedDate}</p>
+              {currentStreak >= 1 && (
+                <p className="mt-2 inline-flex items-center gap-1 rounded-full border border-ladder-orange/50 bg-ladder-orange/15 px-2.5 py-1 text-xs font-semibold text-ladder-orange">
+                  🔥 {currentStreak} günlük seri
+                </p>
+              )}
             </div>
             <DailyCountdown
               puzzleDate={puzzle.date}
@@ -700,6 +760,10 @@ export function GameBoard() {
       </div>
 
       <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface/95 p-3 shadow-xl shadow-black/15 backdrop-blur-[2px] dark:shadow-black/40 sm:p-5">
+        <p className="mb-3 text-center text-xs text-ladder-muted sm:mb-4">
+          Kelimeye dokunarak anlamını görebilirsin.
+        </p>
+
         <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:gap-3">
           <WordRow
             word={puzzle.startWord}
@@ -707,33 +771,44 @@ export function GameBoard() {
             highlight="start"
             hintIndex={path.length === 1 ? hintIndex : null}
             animateIn={false}
+            {...getMeaningProps(puzzle.startWord)}
           />
 
           {path.slice(1).map((word, index) => {
             const isLast = index === path.length - 2;
+            const previousWord = path[index] ?? puzzle.startWord;
+            const changedIndex = findChangedLetterIndex(previousWord, word);
+
             return (
-              <WordRow
-                key={`${word}-${index + 1}`}
-                word={word}
-                label={`#${index + 1}`}
-                highlight={completed && isLast ? "end" : "step"}
-                hintIndex={
-                  hintIndex !== null && !completed && isLast ? hintIndex : null
-                }
-                flashIndex={isLast ? flashLetterIndex : null}
-                animateIn={isLast && flashLetterIndex !== null}
-                celebrate={completed && isLast && celebrate}
-              />
+              <div key={`${word}-${index + 1}`} className="contents">
+                <StepArrow />
+                <WordRow
+                  word={word}
+                  label={`#${index + 1}`}
+                  highlight={completed && isLast ? "end" : "step"}
+                  hintIndex={
+                    hintIndex !== null && !completed && isLast ? hintIndex : null
+                  }
+                  changedIndex={changedIndex}
+                  animateIn={isLast}
+                  celebrate={completed && isLast && celebrate}
+                  {...getMeaningProps(word)}
+                />
+              </div>
             );
           })}
 
           {!completed && (
-            <WordRow
-              word={puzzle.endWord}
-              label="Hedef"
-              highlight="goal"
-              animateIn={false}
-            />
+            <>
+              <StepArrow />
+              <WordRow
+                word={puzzle.endWord}
+                label="Hedef"
+                highlight="goal"
+                animateIn={false}
+                {...getMeaningProps(puzzle.endWord)}
+              />
+            </>
           )}
         </div>
 
@@ -836,27 +911,40 @@ export function GameBoard() {
                   <p className="text-center text-xs font-medium text-ladder-muted">
                     En kısa çözüm · {Math.max(optimalPath.length - 1, 0)} adım
                   </p>
-                  {optimalPath.map((word, index) => (
-                    <WordRow
-                      key={`optimal-${word}-${index}`}
-                      word={word}
-                      label={
-                        index === 0
-                          ? "Başlangıç"
-                          : index === optimalPath.length - 1
-                            ? `#${index} · Hedef`
-                            : `#${index}`
-                      }
-                      highlight={
-                        index === 0
-                          ? "start"
-                          : index === optimalPath.length - 1
-                            ? "end"
-                            : "step"
-                      }
-                      animateIn={false}
-                    />
-                  ))}
+                  {optimalPath.map((word, index) => {
+                    const previousWord =
+                      index > 0 ? optimalPath[index - 1] : word;
+                    const changedIndex =
+                      index > 0
+                        ? findChangedLetterIndex(previousWord, word)
+                        : null;
+
+                    return (
+                      <div key={`optimal-${word}-${index}`} className="contents">
+                        {index > 0 && <StepArrow />}
+                        <WordRow
+                          word={word}
+                          label={
+                            index === 0
+                              ? "Başlangıç"
+                              : index === optimalPath.length - 1
+                                ? `#${index} · Hedef`
+                                : `#${index}`
+                          }
+                          highlight={
+                            index === 0
+                              ? "start"
+                              : index === optimalPath.length - 1
+                                ? "end"
+                                : "step"
+                          }
+                          changedIndex={changedIndex}
+                          animateIn={false}
+                          {...getMeaningProps(word)}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -876,6 +964,8 @@ export function GameBoard() {
                 puzzleNumber={puzzle.puzzleNumber}
                 path={path}
                 steps={stepCount}
+                puzzleDate={puzzle.date}
+                streak={currentStreak}
               />
 
               {puzzle.isToday ? (
@@ -941,6 +1031,18 @@ export function GameBoard() {
           </p>
           <p className="mx-3 mb-3 border-t border-ladder-border/60 pt-3 text-center text-xs text-ladder-muted/80">
             Klasik Word Ladder oyununun Türkçe versiyonudur.
+          </p>
+          <p className="mx-3 mb-3 text-center text-[11px] leading-relaxed text-ladder-muted/70">
+            Kelime anlamları{" "}
+            <a
+              href="https://tr.wiktionary.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-ladder-border underline-offset-2 hover:text-ladder-text"
+            >
+              Türkçe Vikisözlük
+            </a>{" "}
+            (CC BY-SA 4.0) ve manuel tanımlardan derlenmiştir.
           </p>
         </details>
       </section>
