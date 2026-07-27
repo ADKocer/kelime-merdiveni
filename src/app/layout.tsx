@@ -32,6 +32,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://kelimemerdiveni.com",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Kelime Merdiveni - Günlük Kelime Oyunu",
     description: "Bugünün kelime merdivenini sen kaç adımda ineceksin?",
