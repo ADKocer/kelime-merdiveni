@@ -63,6 +63,18 @@ export default function RootLayout({
       </head>
       <body className="min-h-full overflow-x-hidden overscroll-x-none bg-ladder-bg font-sans text-ladder-text antialiased [touch-action:manipulation]">
         {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-27R4HYNP2P"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-27R4HYNP2P');
+          `}
+        </Script>
       </body>
     </html>
   );
