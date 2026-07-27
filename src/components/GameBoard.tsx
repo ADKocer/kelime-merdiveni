@@ -12,11 +12,6 @@ import {
 } from "@/lib/player-history";
 import { GAME_LAUNCH_DATE, getIstanbulDateKey } from "@/lib/daily-clock";
 import {
-  getWordMeaning,
-  loadWordMeanings,
-  turkishLower,
-} from "@/lib/word-meanings";
-import {
   sanitizeWordInput,
   TURKISH_LETTER,
   toTurkishUpperCase,
@@ -102,8 +97,6 @@ export function GameBoard() {
   const [optimalError, setOptimalError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
-  const [meanings, setMeanings] = useState<Record<string, string> | null>(null);
-  const [openMeaningWord, setOpenMeaningWord] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -129,38 +122,6 @@ export function GameBoard() {
     setActivePuzzleDate(dateParam);
     setScreen("play");
   }, []);
-
-  useEffect(() => {
-    if (screen !== "play" || !puzzle) return;
-
-    setOpenMeaningWord(null);
-    void loadWordMeanings()
-      .then(setMeanings)
-      .catch(() => setMeanings({}));
-  }, [screen, puzzle]);
-
-  const getMeaningProps = useCallback(
-    (word: string) => {
-      if (!meanings) {
-        return {};
-      }
-
-      const key = turkishLower(word);
-      const meaning = getWordMeaning(word, meanings);
-
-      return {
-        meaningEnabled: true,
-        meaning,
-        meaningOpen: openMeaningWord === key,
-        onToggleMeaning: meaning
-          ? () =>
-              setOpenMeaningWord((current) => (current === key ? null : key))
-          : undefined,
-      };
-    },
-    [meanings, openMeaningWord],
-  );
-
 
   useEffect(() => {
     const records = getDayRecords();
@@ -761,10 +722,6 @@ export function GameBoard() {
       </div>
 
       <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface/95 p-3 shadow-xl shadow-black/15 backdrop-blur-[2px] dark:shadow-black/40 sm:p-5">
-        <p className="mb-3 text-center text-xs text-ladder-muted sm:mb-4">
-          Kelimeye dokunarak anlamını görebilirsin.
-        </p>
-
         <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:gap-3">
           <WordRow
             word={puzzle.startWord}
@@ -772,7 +729,6 @@ export function GameBoard() {
             highlight="start"
             hintIndex={path.length === 1 ? hintIndex : null}
             animateIn={false}
-            {...getMeaningProps(puzzle.startWord)}
           />
 
           {path.slice(1).map((word, index) => {
@@ -794,7 +750,6 @@ export function GameBoard() {
                   animateIn={isLast}
                   celebrate={completed && isLast && celebrate}
                   glowAllLetters={completed && isLast}
-                  {...getMeaningProps(word)}
                 />
               </div>
             );
@@ -808,7 +763,6 @@ export function GameBoard() {
                 label="Hedef"
                 highlight="goal"
                 animateIn={false}
-                {...getMeaningProps(puzzle.endWord)}
               />
             </>
           )}
@@ -942,7 +896,6 @@ export function GameBoard() {
                           }
                           changedIndex={changedIndex}
                           animateIn={false}
-                          {...getMeaningProps(word)}
                         />
                       </div>
                     );
@@ -1033,18 +986,6 @@ export function GameBoard() {
           </p>
           <p className="mx-3 mb-3 border-t border-ladder-border/60 pt-3 text-center text-xs text-ladder-muted/80">
             Klasik Word Ladder oyununun Türkçe versiyonudur.
-          </p>
-          <p className="mx-3 mb-3 text-center text-[11px] leading-relaxed text-ladder-muted/70">
-            Kelime anlamları{" "}
-            <a
-              href="https://tr.wiktionary.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-ladder-border underline-offset-2 hover:text-ladder-text"
-            >
-              Türkçe Vikisözlük
-            </a>{" "}
-            (CC BY-SA 4.0) ve manuel tanımlardan derlenmiştir.
           </p>
         </details>
       </section>

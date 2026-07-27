@@ -10,8 +10,7 @@
     "build": "node scripts/build-safe.mjs",
     "start": "next start",
     "lint": "next lint",
-    "build:worddb": "tsx scripts/build-worddb.ts",
-    "build:meanings": "tsx scripts/build-meanings.ts"
+    "build:worddb": "tsx scripts/build-worddb.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
