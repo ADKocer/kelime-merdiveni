@@ -23,8 +23,6 @@ import {
   safeServerError,
 } from "@/lib/api-guard";
 
-const MAX_PATH_STEPS = 40;
-
 export async function POST(request: Request) {
   const originBlock = enforceSameOrigin(request);
   if (originBlock) return originBlock;
@@ -36,6 +34,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       playerName?: string;
       puzzleDate?: string;
+      path?: string[];
     };
 
     const todayKey = getIstanbulDateKey();
@@ -60,34 +59,44 @@ export async function POST(request: Request) {
     }
 
     const session = readSessionFromRequest(request);
-    if (!session || session.puzzleDate !== puzzleDate) {
+    const puzzle = getDailyPuzzleForDateKey(puzzleDate);
+
+    const sessionPath =
+      session &&
+      session.puzzleDate === puzzleDate &&
+      session.path.length >= 2
+        ? session.path
+        : null;
+
+    const sessionComplete = Boolean(
+      sessionPath &&
+        validateSolution(puzzle.startWord, puzzle.endWord, sessionPath).valid,
+    );
+
+    const proofPath = Array.isArray(body.path) ? body.path : null;
+    const proofComplete = Boolean(
+      proofPath &&
+        proofPath.length >= 2 &&
+        validateSolution(puzzle.startWord, puzzle.endWord, proofPath).valid,
+    );
+
+    if (!sessionComplete && !proofComplete) {
       return jsonError(
-        "Oyun oturumu geçersiz. Merdiveni yeniden tamamla.",
-        401,
+        "Geçerli bir tamamlanmış çözüm gerekli. Merdiveni yeniden tamamlayın.",
+        400,
       );
     }
 
-    const path = session.path;
+    const path = sessionComplete ? sessionPath! : proofPath!;
     const steps = path.length - 1;
 
-    if (steps < 1 || steps > MAX_PATH_STEPS) {
+    if (steps < 1) {
       return jsonError("Geçersiz çözüm uzunluğu.", 400);
-    }
-
-    const puzzle = getDailyPuzzleForDateKey(puzzleDate);
-    const validation = validateSolution(puzzle.startWord, puzzle.endWord, path);
-
-    if (!validation.valid) {
-      return jsonError(validation.reason, 400);
     }
 
     const optimalSteps =
       getShortestPathLength(puzzle.startWord, puzzle.endWord) ??
       puzzle.optimalSteps;
-
-    if (steps > Math.max(optimalSteps * 3, optimalSteps + 15)) {
-      return jsonError("Çözüm beklenenden çok uzun.", 400);
-    }
 
     const existing = await getBestScoreForPlayer(identity.playerId, puzzle.date);
 

@@ -563,6 +563,7 @@ export function GameBoard() {
         body: JSON.stringify({
           playerName: name,
           puzzleDate: puzzle.date,
+          path,
         }),
       });
 
