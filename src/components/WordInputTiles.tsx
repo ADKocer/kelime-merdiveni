@@ -26,7 +26,7 @@ export function WordInputTiles({
             key={index}
             className={`flex h-11 min-w-0 flex-1 max-w-12 items-center justify-center rounded-lg border-2 font-display text-base tracking-wide transition-all duration-150 sm:h-12 sm:max-w-[3rem] sm:text-xl ${
               isHint
-                ? "border-ladder-orange bg-ladder-orange/40 text-ladder-text ring-2 ring-ladder-orange/70"
+                ? "border-ladder-hint bg-ladder-hint/25 text-ladder-text ring-2 ring-ladder-hint/60"
                 : char
                   ? "border-ladder-accent bg-ladder-accent/30 text-ladder-text scale-[1.02]"
                   : index === value.length

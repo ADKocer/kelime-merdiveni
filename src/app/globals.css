@@ -10,6 +10,7 @@
   --ladder-accent: #2563eb;
   --ladder-success: #16a34a;
   --ladder-orange: #ea580c;
+  --ladder-hint: #7c3aed;
   --ladder-text: #0f172a;
   --ladder-muted: #64748b;
   --ladder-glow: rgba(37, 99, 235, 0.12);
@@ -24,6 +25,7 @@
   --ladder-accent: #60a5fa;
   --ladder-success: #34d399;
   --ladder-orange: #fb923c;
+  --ladder-hint: #c4b5fd;
   --ladder-text: #f1f5f9;
   --ladder-muted: #94a3b8;
   --ladder-glow: rgba(96, 165, 250, 0.16);
@@ -241,6 +243,13 @@ a,
   text-shadow:
     0 0 8px color-mix(in srgb, var(--ladder-orange) 65%, transparent),
     0 0 14px color-mix(in srgb, var(--ladder-orange) 30%, transparent);
+}
+
+.letter-hint {
+  color: var(--ladder-hint);
+  text-shadow:
+    0 0 8px color-mix(in srgb, var(--ladder-hint) 70%, transparent),
+    0 0 14px color-mix(in srgb, var(--ladder-hint) 35%, transparent);
 }
 
 .letter-celebrated {

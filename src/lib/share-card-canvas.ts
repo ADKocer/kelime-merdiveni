@@ -10,6 +10,7 @@ const COLORS = {
   accent: "#60a5fa",
   success: "#34d399",
   orange: "#fb923c",
+  hint: "#c4b5fd",
   stepFill: "rgba(96, 165, 250, 0.12)",
 };
 
@@ -205,7 +206,7 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   cursorX += ctx.measureText(stepsText).width;
 
   if (safeHints > 0) {
-    ctx.fillStyle = COLORS.orange;
+    ctx.fillStyle = COLORS.hint;
     ctx.fillText(hintSuffix, cursorX, footerY);
     cursorX += ctx.measureText(hintSuffix).width;
   }

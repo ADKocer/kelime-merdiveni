@@ -17,6 +17,7 @@ import {
   toTurkishUpperCase,
 } from "@/lib/word-input";
 import { DailyCountdown } from "./DailyCountdown";
+import { HowToPlay } from "./HowToPlay";
 import { LeaderboardModal } from "./LeaderboardModal";
 import { ProgressCalendar } from "./ProgressCalendar";
 import { ScoreLabel } from "./ScoreLabel";
@@ -123,6 +124,13 @@ export function GameBoard() {
 
     setActivePuzzleDate(dateParam);
     setScreen("play");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#nasil-oynanir") {
+      setScreen("home");
+    }
   }, []);
 
   useEffect(() => {
@@ -709,6 +717,8 @@ export function GameBoard() {
           onSelectDate={(dateKey) => openPlay(dateKey)}
         />
 
+        <HowToPlay />
+
         <LeaderboardModal
           open={showLeaderboard}
           onClose={closeLeaderboard}
@@ -846,7 +856,7 @@ export function GameBoard() {
                 type="button"
                 onClick={() => void requestHint()}
                 disabled={hintLoading}
-                className="rounded-lg border border-ladder-orange bg-ladder-orange/20 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/30 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg border border-ladder-hint bg-ladder-hint/20 px-4 py-2 text-sm font-medium text-ladder-hint transition hover:bg-ladder-hint/30 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {hintLoading
                   ? "İpucu alınıyor..."
@@ -991,28 +1001,7 @@ export function GameBoard() {
           )}
         </div>
 
-        <details className="mt-4 rounded-xl border border-ladder-border bg-ladder-bg/60 sm:mt-5">
-          <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-ladder-text [&::-webkit-details-marker]:hidden">
-            Nasıl Oynanır
-          </summary>
-          <ul className="space-y-1 px-3 pb-2 text-sm text-ladder-muted">
-            <li>Her adımda yalnızca 1 harf değişebilir.</li>
-            <li>Kelime uzunluğu sabit kalmalıdır.</li>
-            <li>Tüm kelimeler oyun sözlüğünde geçerli olmalıdır.</li>
-            <li>Ek eklenerek türetilmiş kelimeler kabul edilmez.</li>
-          </ul>
-          <p className="mx-3 mb-3 rounded-lg border border-ladder-border bg-ladder-bg/80 px-3 py-2 text-sm text-ladder-text">
-            <span className="text-ladder-muted">Örnek: </span>
-            <span className="tracking-[0.1em] sm:tracking-[0.2em]">
-              {toTurkishUpperCase("koyu")} → {toTurkishUpperCase("konu")} →{" "}
-              {toTurkishUpperCase("koni")}
-            </span>
-            <span className="text-ladder-muted"> (y-n, o-i)</span>
-          </p>
-          <p className="mx-3 mb-3 border-t border-ladder-border/60 pt-3 text-center text-xs text-ladder-muted/80">
-            Klasik Word Ladder oyununun Türkçe versiyonudur.
-          </p>
-        </details>
+        <HowToPlay />
       </section>
     </div>
   );

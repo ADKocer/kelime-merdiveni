@@ -152,7 +152,7 @@ export function ShareCard({
         >
           {steps}
           {safeHints > 0 && (
-            <span style={{ color: "#fb923c" }}> + {safeHints}</span>
+            <span style={{ color: "#c4b5fd" }}> + {safeHints}</span>
           )}{" "}
           adım
           {showStreak ? ` · 🔥 ${streak} gün seri` : ""}

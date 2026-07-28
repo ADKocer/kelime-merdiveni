@@ -16,6 +16,7 @@ const config: Config = {
           accent: "var(--ladder-accent)",
           success: "var(--ladder-success)",
           orange: "var(--ladder-orange)",
+          hint: "var(--ladder-hint)",
           text: "var(--ladder-text)",
           muted: "var(--ladder-muted)",
         },

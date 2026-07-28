@@ -11,7 +11,7 @@ export function ScoreLabel({
   steps,
   hints = 0,
   className,
-  hintClassName = "text-ladder-orange",
+  hintClassName = "text-ladder-hint",
 }: ScoreLabelProps) {
   const safeHints = Math.max(hints, 0);
 

@@ -94,7 +94,7 @@ export function WordRow({
           } else if (isChanged) {
             letterClass = animateIn ? "animate-letter-flash" : "letter-changed";
           } else if (isHint) {
-            letterClass = "text-ladder-orange";
+            letterClass = "letter-hint";
           }
           return (
             <span
