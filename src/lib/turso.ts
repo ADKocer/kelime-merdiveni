@@ -3,6 +3,16 @@ import { createClient, type Client } from "@libsql/client";
 let client: Client | null = null;
 let schemaReady: Promise<void> | null = null;
 
+async function ensureHintsColumn(db: Client): Promise<void> {
+  try {
+    await db.execute(
+      `ALTER TABLE scores ADD COLUMN hints INTEGER NOT NULL DEFAULT 0`,
+    );
+  } catch {
+    // Kolon zaten var
+  }
+}
+
 /**
  * Yerelde Turso yoksa dosya DB kullanır.
  * Vercel'de TURSO_DATABASE_URL + TURSO_AUTH_TOKEN zorunlu.
@@ -57,6 +67,7 @@ export async function ensureLeaderboardSchema(): Promise<void> {
         ],
         "write",
       );
+      await ensureHintsColumn(db);
     })().catch((error) => {
       schemaReady = null;
       throw error;

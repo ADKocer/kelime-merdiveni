@@ -5,6 +5,7 @@ import {
   getBestScoreForPlayer,
   getClaimedNameForPlayer,
   saveScore,
+  scoreIsImprovement,
 } from "@/lib/db";
 import { getDailyPuzzleForDateKey } from "@/lib/puzzle";
 import { getIstanbulDateKey } from "@/lib/daily-clock";
@@ -89,6 +90,10 @@ export async function POST(request: Request) {
 
     const path = sessionComplete ? sessionPath! : proofPath!;
     const steps = path.length - 1;
+    const hints =
+      sessionComplete && session && session.puzzleDate === puzzleDate
+        ? session.hintCount
+        : 0;
 
     if (steps < 1) {
       return jsonError("Geçersiz çözüm uzunluğu.", 400);
@@ -100,11 +105,12 @@ export async function POST(request: Request) {
 
     const existing = await getBestScoreForPlayer(identity.playerId, puzzle.date);
 
-    if (existing && existing.steps <= steps) {
+    if (existing && !scoreIsImprovement(existing, steps, hints)) {
       const response = NextResponse.json({
         saved: false,
         message: "Daha iyi bir skorunuz zaten kayıtlı.",
         steps: existing.steps,
+        hints: existing.hints,
         optimalSteps,
         playerName:
           (await getClaimedNameForPlayer(identity.playerId)) ?? nameResult.name,
@@ -125,6 +131,7 @@ export async function POST(request: Request) {
         playerName: nameResult.name,
         puzzleDate: puzzle.date,
         steps,
+        hints,
         path,
       });
     } catch (error) {
@@ -143,6 +150,7 @@ export async function POST(request: Request) {
       saved: true,
       updated: Boolean(existing),
       steps: entry.steps,
+      hints: entry.hints,
       completedAt: entry.completedAt,
       optimalSteps,
       playerName: entry.playerName,

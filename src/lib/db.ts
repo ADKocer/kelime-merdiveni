@@ -1,4 +1,5 @@
 import { nameKey } from "./player-identity";
+import { isBetterScore } from "./score-display";
 import { ensureLeaderboardSchema, getTurso } from "./turso";
 
 export interface LeaderboardEntry {
@@ -7,6 +8,7 @@ export interface LeaderboardEntry {
   playerName: string;
   puzzleDate: string;
   steps: number;
+  hints: number;
   path: string;
   completedAt: string;
 }
@@ -18,6 +20,19 @@ export type ClaimNameResult =
 async function withDb<T>(fn: () => Promise<T>): Promise<T> {
   await ensureLeaderboardSchema();
   return fn();
+}
+
+function mapRow(row: Record<string, unknown>): LeaderboardEntry {
+  return {
+    id: Number(row.id),
+    playerId: row.player_id != null ? String(row.player_id) : undefined,
+    playerName: String(row.player_name),
+    puzzleDate: String(row.puzzle_date),
+    steps: Number(row.steps),
+    hints: Number(row.hints ?? 0),
+    path: String(row.path),
+    completedAt: String(row.completed_at),
+  };
 }
 
 export async function getClaimedNameForPlayer(
@@ -73,6 +88,7 @@ export async function saveScore(input: {
   playerName: string;
   puzzleDate: string;
   steps: number;
+  hints: number;
   path: string[];
 }): Promise<LeaderboardEntry> {
   return withDb(async () => {
@@ -86,6 +102,7 @@ export async function saveScore(input: {
     const key = nameKey(playerName);
     const completedAt = new Date().toISOString();
     const pathJson = JSON.stringify(input.path);
+    const hints = Math.max(0, input.hints);
 
     await db.batch(
       [
@@ -102,13 +119,14 @@ export async function saveScore(input: {
           args: [input.puzzleDate, input.playerId],
         },
         {
-          sql: `INSERT INTO scores (player_id, player_name, puzzle_date, steps, path, completed_at)
-                VALUES (?, ?, ?, ?, ?, ?)`,
+          sql: `INSERT INTO scores (player_id, player_name, puzzle_date, steps, hints, path, completed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
           args: [
             input.playerId,
             playerName,
             input.puzzleDate,
             input.steps,
+            hints,
             pathJson,
             completedAt,
           ],
@@ -118,7 +136,7 @@ export async function saveScore(input: {
     );
 
     const inserted = await db.execute({
-      sql: `SELECT id, player_id, player_name, puzzle_date, steps, path, completed_at
+      sql: `SELECT id, player_id, player_name, puzzle_date, steps, hints, path, completed_at
             FROM scores
             WHERE player_id = ? AND puzzle_date = ?
             ORDER BY id DESC LIMIT 1`,
@@ -130,17 +148,11 @@ export async function saveScore(input: {
       throw new Error("Skor kaydı doğrulanamadı.");
     }
 
-    return {
-      id: Number(row.id),
-      playerId: String(row.player_id),
-      playerName: String(row.player_name),
-      puzzleDate: String(row.puzzle_date),
-      steps: Number(row.steps),
-      path: String(row.path),
-      completedAt: String(row.completed_at),
-    };
+    return mapRow(row as Record<string, unknown>);
   });
 }
+
+const SCORE_ORDER_SQL = `(steps + hints) ASC, hints ASC, completed_at ASC`;
 
 export async function getLeaderboard(
   puzzleDate: string,
@@ -150,33 +162,27 @@ export async function getLeaderboard(
     const db = getTurso();
     const result = await db.execute({
       sql: `
-        SELECT id, player_id, player_name, puzzle_date, steps, path, completed_at
+        SELECT id, player_id, player_name, puzzle_date, steps, hints, path, completed_at
         FROM (
           SELECT
-            id, player_id, player_name, puzzle_date, steps, path, completed_at,
+            id, player_id, player_name, puzzle_date, steps, hints, path, completed_at,
             ROW_NUMBER() OVER (
               PARTITION BY player_id
-              ORDER BY steps ASC, completed_at ASC
+              ORDER BY ${SCORE_ORDER_SQL}
             ) AS rn
           FROM scores
           WHERE puzzle_date = ?
         ) AS ranked
         WHERE rn = 1
-        ORDER BY steps ASC, completed_at ASC
+        ORDER BY ${SCORE_ORDER_SQL}
         LIMIT ?
       `,
       args: [puzzleDate, limit],
     });
 
-    return result.rows.map((row) => ({
-      id: Number(row.id),
-      playerId: String(row.player_id),
-      playerName: String(row.player_name),
-      puzzleDate: String(row.puzzle_date),
-      steps: Number(row.steps),
-      path: String(row.path),
-      completedAt: String(row.completed_at),
-    }));
+    return result.rows.map((row) =>
+      mapRow(row as Record<string, unknown>),
+    );
   });
 }
 
@@ -187,10 +193,10 @@ export async function getBestScoreForPlayer(
   return withDb(async () => {
     const db = getTurso();
     const result = await db.execute({
-      sql: `SELECT id, player_id, player_name, puzzle_date, steps, path, completed_at
+      sql: `SELECT id, player_id, player_name, puzzle_date, steps, hints, path, completed_at
             FROM scores
             WHERE player_id = ? AND puzzle_date = ?
-            ORDER BY steps ASC, completed_at ASC
+            ORDER BY ${SCORE_ORDER_SQL}
             LIMIT 1`,
       args: [playerId, puzzleDate],
     });
@@ -198,14 +204,14 @@ export async function getBestScoreForPlayer(
     const row = result.rows[0];
     if (!row) return null;
 
-    return {
-      id: Number(row.id),
-      playerId: String(row.player_id),
-      playerName: String(row.player_name),
-      puzzleDate: String(row.puzzle_date),
-      steps: Number(row.steps),
-      path: String(row.path),
-      completedAt: String(row.completed_at),
-    };
+    return mapRow(row as Record<string, unknown>);
   });
+}
+
+export function scoreIsImprovement(
+  existing: LeaderboardEntry,
+  steps: number,
+  hints: number,
+): boolean {
+  return isBetterScore(steps, hints, existing.steps, existing.hints);
 }

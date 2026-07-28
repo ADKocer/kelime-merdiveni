@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { ScoreLabel } from "@/components/ScoreLabel";
+
 interface LeaderboardProps {
   refreshKey: number;
   modal?: boolean;
@@ -12,6 +14,7 @@ interface LeaderboardEntry {
   id: number;
   playerName: string;
   steps: number;
+  hints: number;
   completedAt: string;
 }
 
@@ -108,7 +111,7 @@ export function Leaderboard({
                     </div>
                   </div>
                   <span className="shrink-0 rounded-full bg-ladder-accent/30 px-2.5 py-0.5 text-sm font-semibold text-ladder-accent">
-                    {entry.steps}
+                    <ScoreLabel steps={entry.steps} hints={entry.hints} />
                   </span>
                 </div>
               </li>
@@ -157,7 +160,7 @@ export function Leaderboard({
                   </div>
                 </div>
                 <span className="shrink-0 rounded-full bg-ladder-accent/30 px-3 py-1 text-sm font-semibold text-ladder-accent">
-                  {entry.steps}
+                  <ScoreLabel steps={entry.steps} hints={entry.hints} />
                 </span>
               </div>
             </li>

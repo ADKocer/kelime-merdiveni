@@ -7,6 +7,7 @@ export type CompletionStatus = "onTime" | "late";
 export interface DayRecord {
   status: CompletionStatus;
   steps: number;
+  hints?: number;
   path?: string[];
   optimalSteps?: number;
 }
@@ -55,6 +56,7 @@ function migrateRecords(raw: unknown): Record<string, DayRecord> {
       if (!value || typeof value !== "object") continue;
       const record = value as Partial<DayRecord>;
       const steps = typeof record.steps === "number" ? record.steps : 0;
+      const hints = typeof record.hints === "number" ? record.hints : 0;
       const status: CompletionStatus =
         record.status === "onTime" || record.status === "late"
           ? record.status
@@ -65,6 +67,7 @@ function migrateRecords(raw: unknown): Record<string, DayRecord> {
       migrated[dateKey] = {
         status,
         steps,
+        hints,
         path: Array.isArray(record.path) ? (record.path as string[]) : undefined,
       };
     }
@@ -106,6 +109,7 @@ export function buildDayRecord(
   path?: string[],
   optimalSteps?: number,
   existingStatus?: CompletionStatus,
+  hints = 0,
 ): DayRecord {
   const completedOn = getIstanbulDateKey();
   // Daha önce gününde bitirildiyse sonradan bakınca turuncuya düşmesin
@@ -121,6 +125,7 @@ export function buildDayRecord(
   return {
     status,
     steps,
+    hints: Math.max(0, hints),
     path,
     optimalSteps,
   };
@@ -180,6 +185,7 @@ export function markDayCompleted(
   steps: number,
   path?: string[],
   optimalSteps?: number,
+  hints = 0,
 ): DayRecord | null {
   if (typeof window === "undefined") return null;
 
@@ -192,6 +198,7 @@ export function markDayCompleted(
       path ?? existing?.path,
       optimalSteps ?? existing?.optimalSteps,
       existing?.status,
+      hints,
     );
     records[puzzleDate] = record;
     writeRecords(records);

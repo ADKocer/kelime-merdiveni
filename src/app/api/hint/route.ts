@@ -17,17 +17,13 @@ export async function POST(request: Request) {
   const originBlock = enforceSameOrigin(request);
   if (originBlock) return originBlock;
 
-  const limited = enforceRateLimit(request, "hint", 20, 60_000);
+  const limited = enforceRateLimit(request, "hint", 60, 60_000);
   if (limited) return limited;
 
   try {
     const session = readSessionFromRequest(request);
     if (!session) {
       return jsonError("Oyun oturumu bulunamadı. Sayfayı yenile.", 401);
-    }
-
-    if (session.hintUsed) {
-      return jsonError("Bu merdiven için ipucu hakkın kalmadı.", 400);
     }
 
     const puzzle = getDailyPuzzleForDateKey(session.puzzleDate);
@@ -42,12 +38,13 @@ export async function POST(request: Request) {
       return jsonError("Bu konum için ipucu bulunamadı.", 400);
     }
 
+    const hintCount = session.hintCount + 1;
     const token = createSessionToken({
       ...session,
-      hintUsed: true,
+      hintCount,
     });
 
-    const response = NextResponse.json(hint);
+    const response = NextResponse.json({ ...hint, hintCount });
     response.headers.set("Set-Cookie", sessionCookieHeader(token));
     return response;
   } catch (error) {

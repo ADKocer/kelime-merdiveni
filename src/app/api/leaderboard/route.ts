@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       id: entry.id,
       playerName: entry.playerName,
       steps: entry.steps,
+      hints: entry.hints,
       completedAt: entry.completedAt,
     }));
 

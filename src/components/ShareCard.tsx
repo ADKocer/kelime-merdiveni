@@ -4,6 +4,7 @@ export interface ShareCardInput {
   puzzleNumber: number;
   path: string[];
   steps: number;
+  hints?: number;
   streak?: number;
 }
 
@@ -63,12 +64,19 @@ function StepRow({ length }: { length: number }) {
   );
 }
 
-export function ShareCard({ puzzleNumber, path, steps, streak }: ShareCardInput) {
+export function ShareCard({
+  puzzleNumber,
+  path,
+  steps,
+  hints = 0,
+  streak,
+}: ShareCardInput) {
   const start = path[0] ?? "";
   const end = path[path.length - 1] ?? "";
   const wordLength = start.length || end.length || 4;
   const middleSteps = Math.max(steps - 1, 0);
   const showStreak = typeof streak === "number" && streak >= 2;
+  const safeHints = Math.max(hints, 0);
 
   return (
     <div
@@ -142,7 +150,12 @@ export function ShareCard({ puzzleNumber, path, steps, streak }: ShareCardInput)
             fontWeight: 600,
           }}
         >
-          {steps} adım{showStreak ? ` · 🔥 ${streak} gün seri` : ""}
+          {steps}
+          {safeHints > 0 && (
+            <span style={{ color: "#fb923c" }}> + {safeHints}</span>
+          )}{" "}
+          adım
+          {showStreak ? ` · 🔥 ${streak} gün seri` : ""}
         </p>
       </div>
     </div>

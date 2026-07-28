@@ -4,6 +4,7 @@ export interface ShareScoreInput {
   puzzleNumber: number;
   path: string[];
   steps: number;
+  hints?: number;
   gameUrl?: string;
   puzzleDate?: string;
   streak?: number;
@@ -28,13 +29,16 @@ export function buildEmojiLadder(steps: number): string {
 export function buildShareText({
   puzzleNumber,
   steps,
+  hints = 0,
   puzzleDate,
   streak,
   gameUrl,
 }: Omit<ShareScoreInput, "path">): string {
   const url = getDuelUrl(puzzleDate, gameUrl);
   const ladder = buildEmojiLadder(steps);
-  const stepLabel = `${steps} adım`;
+  const safeHints = Math.max(hints, 0);
+  const stepLabel =
+    safeHints > 0 ? `${steps} + ${safeHints} adım` : `${steps} adım`;
   const streakLabel =
     typeof streak === "number" && streak >= 2 ? ` · 🔥 ${streak} gün` : "";
 

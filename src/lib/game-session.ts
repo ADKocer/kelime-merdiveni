@@ -6,7 +6,7 @@ const MAX_AGE_SEC = 60 * 60 * 24; // 24 saat
 export interface GameSession {
   puzzleDate: string;
   path: string[];
-  hintUsed: boolean;
+  hintCount: number;
   issuedAt: number;
 }
 
@@ -25,17 +25,29 @@ function encodePayload(session: GameSession): string {
 function decodePayload(raw: string): GameSession | null {
   try {
     const json = Buffer.from(raw, "base64url").toString("utf8");
-    const data = JSON.parse(json) as GameSession;
+    const data = JSON.parse(json) as GameSession & { hintUsed?: boolean };
     if (
       typeof data.puzzleDate !== "string" ||
       !Array.isArray(data.path) ||
-      typeof data.hintUsed !== "boolean" ||
       typeof data.issuedAt !== "number"
     ) {
       return null;
     }
     if (!data.path.every((word) => typeof word === "string")) return null;
-    return data;
+
+    let hintCount = 0;
+    if (typeof data.hintCount === "number" && Number.isFinite(data.hintCount)) {
+      hintCount = Math.max(0, Math.floor(data.hintCount));
+    } else if (data.hintUsed === true) {
+      hintCount = 1;
+    }
+
+    return {
+      puzzleDate: data.puzzleDate,
+      path: data.path,
+      hintCount,
+      issuedAt: data.issuedAt,
+    };
   } catch {
     return null;
   }
@@ -99,7 +111,7 @@ export function newSession(puzzleDate: string, startWord: string): GameSession {
   return {
     puzzleDate,
     path: [startWord],
-    hintUsed: false,
+    hintCount: 0,
     issuedAt: Date.now(),
   };
 }

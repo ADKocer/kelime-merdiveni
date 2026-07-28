@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { isHintUsed, markHintUsed } from "@/lib/hint-storage";
 import {
   buildDayRecord,
   getCurrentStreak,
@@ -11,6 +10,7 @@ import {
   type DayRecord,
 } from "@/lib/player-history";
 import { GAME_LAUNCH_DATE, getIstanbulDateKey } from "@/lib/daily-clock";
+import { formatScoreWithAdim } from "@/lib/score-display";
 import {
   sanitizeWordInput,
   TURKISH_LETTER,
@@ -19,6 +19,7 @@ import {
 import { DailyCountdown } from "./DailyCountdown";
 import { LeaderboardModal } from "./LeaderboardModal";
 import { ProgressCalendar } from "./ProgressCalendar";
+import { ScoreLabel } from "./ScoreLabel";
 import { ShareScore } from "./ShareScore";
 import { StepArrow } from "./StepArrow";
 import { ThemeToggle } from "./ThemeToggle";
@@ -35,7 +36,7 @@ interface PuzzleResponse {
   puzzleNumber: number;
   isToday: boolean;
   sessionPath?: string[];
-  hintUsed?: boolean;
+  hintCount?: number;
   claimedPlayerName?: string | null;
 }
 
@@ -49,6 +50,7 @@ interface ValidateResponse {
 
 interface HintResponse {
   position: number;
+  hintCount?: number;
   error?: string;
 }
 
@@ -87,7 +89,7 @@ export function GameBoard() {
     if (typeof window === "undefined") return {};
     return getDayRecords();
   });
-  const [hintUsed, setHintUsed] = useState(false);
+  const [hintCount, setHintCount] = useState(0);
   const [hintIndex, setHintIndex] = useState<number | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
   const [optimalSteps, setOptimalSteps] = useState<number | null>(null);
@@ -179,6 +181,7 @@ export function GameBoard() {
               existing.steps,
               existing.path,
               data.optimalSteps,
+              existing.hints ?? 0,
             ) ??
             buildDayRecord(
               date,
@@ -186,6 +189,7 @@ export function GameBoard() {
               existing.path,
               data.optimalSteps,
               existing.status,
+              existing.hints ?? 0,
             );
           setDayRecords((current) => ({ ...current, [date]: record }));
           setHistoryVersion((value) => value + 1);
@@ -222,7 +226,7 @@ export function GameBoard() {
           setInput("");
           setMessage(null);
           setHintIndex(null);
-          setHintUsed(data.hintUsed ?? isHintUsed(data.date));
+          setHintCount(data.hintCount ?? 0);
           setOptimalSteps(null);
           setOptimalPath(null);
           setShowOptimal(false);
@@ -375,12 +379,15 @@ export function GameBoard() {
           finalSteps,
           nextPath,
           optimalSteps ?? undefined,
+          hintCount,
         ) ??
         buildDayRecord(
           puzzle.date,
           finalSteps,
           nextPath,
           optimalSteps ?? undefined,
+          undefined,
+          hintCount,
         );
       setDayRecords((current) => ({ ...current, [puzzle.date]: record }));
       setHistoryVersion((value) => value + 1);
@@ -392,7 +399,7 @@ export function GameBoard() {
     } else {
       setHintIndex(null);
     }
-  }, [completed, fetchOptimal, input, optimalSteps, path, puzzle, screen]);
+  }, [completed, fetchOptimal, hintCount, input, optimalSteps, path, puzzle, screen]);
 
   const appendLetter = useCallback(
     (letter: string) => {
@@ -469,7 +476,7 @@ export function GameBoard() {
   };
 
   const requestHint = async () => {
-    if (!puzzle || completed || hintUsed || hintLoading) return;
+    if (!puzzle || completed || hintLoading) return;
 
     setHintLoading(true);
     setError(null);
@@ -487,8 +494,11 @@ export function GameBoard() {
         throw new Error(data.error ?? "İpucu alınamadı.");
       }
 
-      markHintUsed(puzzle.date);
-      setHintUsed(true);
+      if (typeof data.hintCount === "number") {
+        setHintCount(data.hintCount);
+      } else {
+        setHintCount((value) => value + 1);
+      }
       setHintIndex(data.position - 1);
     } catch (hintError) {
       setError(
@@ -534,6 +544,7 @@ export function GameBoard() {
         message?: string;
         error?: string;
         steps?: number;
+        hints?: number;
         optimalSteps?: number;
       };
 
@@ -551,6 +562,7 @@ export function GameBoard() {
               existing.steps,
               existing.path,
               data.optimalSteps,
+              existing.hints ?? hintCount,
             ) ??
             buildDayRecord(
               puzzle.date,
@@ -558,6 +570,7 @@ export function GameBoard() {
               existing.path,
               data.optimalSteps,
               existing.status,
+              existing.hints ?? hintCount,
             );
           setDayRecords((current) => ({
             ...current,
@@ -568,10 +581,14 @@ export function GameBoard() {
       }
 
       if (data.saved) {
+        const scoreLabel = formatScoreWithAdim(
+          data.steps ?? stepCount,
+          data.hints ?? hintCount,
+        );
         setMessage(
           data.updated
-            ? `Skorunuz ${data.steps} adıma güncellendi!`
-            : `${data.steps} adımla onur tablosuna eklendiniz!`,
+            ? `Skorunuz ${scoreLabel} olarak güncellendi!`
+            : `${scoreLabel} ile onur tablosuna eklendiniz!`,
         );
       } else {
         setMessage(data.message ?? "Skor kaydedilmedi.");
@@ -659,7 +676,11 @@ export function GameBoard() {
 
           {todayCompleted && (
             <p className="mb-3 text-center text-sm text-ladder-success">
-              Bugünkü merdiveni tamamladınız · {todayRecord?.steps ?? 0} adım
+              Bugünkü merdiveni tamamladınız ·{" "}
+              {formatScoreWithAdim(
+                todayRecord?.steps ?? 0,
+                todayRecord?.hints ?? 0,
+              )}
               {todayRecord?.status === "late" ? " (geç)" : ""}
             </p>
           )}
@@ -711,7 +732,10 @@ export function GameBoard() {
           <p className="truncate text-xs text-ladder-muted sm:text-sm">
             Merdiven #{puzzle.puzzleNumber} · {formattedDate}
           </p>
-          <p className="text-sm font-medium sm:text-base">{stepCount} adım</p>
+          <p className="text-sm font-medium sm:text-base">
+            <ScoreLabel steps={stepCount} hints={hintCount} />
+            <span className="text-ladder-muted"> adım</span>
+          </p>
           {!puzzle.isToday && (
             <p className="text-xs text-ladder-orange">Geçmiş merdiven</p>
           )}
@@ -821,14 +845,14 @@ export function GameBoard() {
               <button
                 type="button"
                 onClick={() => void requestHint()}
-                disabled={hintUsed || hintLoading}
+                disabled={hintLoading}
                 className="rounded-lg border border-ladder-orange bg-ladder-orange/20 px-4 py-2 text-sm font-medium text-ladder-orange transition hover:bg-ladder-orange/30 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {hintLoading
                   ? "İpucu alınıyor..."
-                  : hintUsed
-                    ? "İpucu kullanıldı"
-                    : "İpucu (1 hak)"}
+                  : hintCount > 0
+                    ? `İpucu (${hintCount} kullanıldı)`
+                    : "İpucu"}
               </button>
             </>
           )}
@@ -919,6 +943,7 @@ export function GameBoard() {
                 puzzleNumber={puzzle.puzzleNumber}
                 path={path}
                 steps={stepCount}
+                hints={hintCount}
                 puzzleDate={puzzle.date}
                 streak={currentStreak}
               />

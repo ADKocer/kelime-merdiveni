@@ -65,7 +65,7 @@ export async function GET(request: Request) {
       puzzleNumber: puzzle.puzzleNumber,
       isToday: puzzle.date === todayKey,
       sessionPath: session.path,
-      hintUsed: session.hintUsed,
+      hintCount: session.hintCount,
       claimedPlayerName: claimedName,
     });
     response.headers.append("Set-Cookie", sessionCookieHeader(token));

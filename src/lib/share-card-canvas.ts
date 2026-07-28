@@ -9,6 +9,7 @@ const COLORS = {
   muted: "#94a3b8",
   accent: "#60a5fa",
   success: "#34d399",
+  orange: "#fb923c",
   stepFill: "rgba(96, 165, 250, 0.12)",
 };
 
@@ -182,15 +183,35 @@ export function createShareCardCanvas(input: ShareCardInput): HTMLCanvasElement 
   y += tileSize;
 
   const showStreak = typeof input.streak === "number" && input.streak >= 2;
-  const footerText = showStreak
-    ? `${input.steps} adım · 🔥 ${input.streak} gün seri`
-    : `${input.steps} adım`;
+  const safeHints = Math.max(input.hints ?? 0, 0);
 
   ctx.fillStyle = COLORS.muted;
   ctx.font = `600 22px ${FONT_BODY}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-  ctx.fillText(footerText, width / 2, y + 34);
+
+  const footerY = y + 34;
+  const stepsText = String(input.steps);
+  const hintSuffix = safeHints > 0 ? ` + ${safeHints}` : "";
+  const adimText = " adım";
+  const streakSuffix = showStreak ? ` · 🔥 ${input.streak} gün seri` : "";
+  const fullText = `${stepsText}${hintSuffix}${adimText}${streakSuffix}`;
+  const fullWidth = ctx.measureText(fullText).width;
+  let cursorX = width / 2 - fullWidth / 2;
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.textAlign = "left";
+  ctx.fillText(stepsText, cursorX, footerY);
+  cursorX += ctx.measureText(stepsText).width;
+
+  if (safeHints > 0) {
+    ctx.fillStyle = COLORS.orange;
+    ctx.fillText(hintSuffix, cursorX, footerY);
+    cursorX += ctx.measureText(hintSuffix).width;
+  }
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.fillText(`${adimText}${streakSuffix}`, cursorX, footerY);
 
   return canvas;
 }
