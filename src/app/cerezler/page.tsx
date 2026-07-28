@@ -109,6 +109,24 @@ export default function CookiesPage() {
         </a>
       </p>
 
+      <h3 className="mt-4 font-medium text-ladder-text">
+        Çerezsiz web analitiği (Vercel)
+      </h3>
+      <p>
+        Site trafiğini ölçmek için Vercel Web Analytics kullanılır. Bu hizmet
+        tarayıcıya analitik çerez kaydetmez; ziyaretler özet istatistik olarak
+        işlenir. Çerez banner’ındaki tercihinizden bağımsız çalışır. Ayrıntılar:{" "}
+        <a
+          href="https://vercel.com/docs/analytics/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-ladder-accent underline-offset-2 hover:underline"
+        >
+          Vercel Analytics gizlilik
+        </a>
+        .
+      </p>
+
       <h2 className="text-lg font-semibold text-ladder-text">
         3. Yerel depolama (localStorage)
       </h2>

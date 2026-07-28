@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { CookieConsent } from "@/components/CookieConsent";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
@@ -90,6 +91,7 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden overscroll-x-none bg-ladder-bg font-sans text-ladder-text antialiased [touch-action:manipulation]">
         {children}
         <CookieConsent />
+        <Analytics />
       </body>
     </html>
   );

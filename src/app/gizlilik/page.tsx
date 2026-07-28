@@ -53,9 +53,11 @@ export default function PrivacyPage() {
           tanımlayıcı).
         </li>
         <li>
-          <strong>Analitik veriler:</strong> Google Analytics aracılığıyla
-          sayfa görüntüleme, cihaz türü, tarayıcı, yaklaşık konum ve IP
-          adresinin anonimleştirilmiş/özetlenmiş hali.
+          <strong>Analitik veriler:</strong> Vercel Web Analytics ile
+          özetlenmiş ziyaret istatistikleri (sayfa görüntüleme, cihaz türü,
+          ülke; çerez kullanılmaz). İsteğe bağlı olarak, açık rıza vermeniz
+          hâlinde Google Analytics ile sayfa görüntüleme, tarayıcı, yaklaşık
+          konum ve IP adresinin anonimleştirilmiş hali.
         </li>
         <li>
           <strong>İletişim:</strong> bize e-posta veya sosyal medya
@@ -74,7 +76,7 @@ export default function PrivacyPage() {
       <ul className="list-disc space-y-1 pl-5">
         <li>Oyunun çalıştırılması ve oturumun korunması</li>
         <li>Günlük onur tablosunun yönetimi</li>
-        <li>Site performansının ve kullanımının ölçülmesi (Google Analytics)</li>
+        <li>Site performansının ve kullanımının ölçülmesi (Vercel Web Analytics, isteğe bağlı Google Analytics)</li>
         <li>Hata giderme, güvenlik ve kötüye kullanımın önlenmesi</li>
         <li>Kullanıcı taleplerine yanıt verilmesi</li>
       </ul>
@@ -107,15 +109,19 @@ export default function PrivacyPage() {
       </p>
       <ul className="list-disc space-y-1 pl-5">
         <li>
+          <strong>Vercel Web Analytics</strong> (Vercel Inc.) — çerezsiz,
+          özetlenmiş ziyaret istatistikleri
+        </li>
+        <li>
           <strong>Google Analytics</strong> (Google LLC / Google Ireland) —
-          kullanım istatistikleri
+          kullanım istatistikleri (yalnızca açık rıza ile)
         </li>
         <li>
           <strong>Turso / barındırma altyapısı</strong> — onur tablosu skor
           kayıtları
         </li>
         <li>
-          <strong>Vercel veya eşdeğer barındırma</strong> — site yayını
+          <strong>Vercel</strong> — site yayını ve web analitiği
         </li>
       </ul>
       <p>
