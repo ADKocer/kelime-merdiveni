@@ -62,10 +62,51 @@ function cleanGloss(text: string): string {
     .trim();
 }
 
-function shortenMeaning(text: string, maxLength = 140): string {
-  const firstClause = text.split(/[.;]/)[0]?.trim() ?? text;
-  if (firstClause.length <= maxLength) return firstClause;
-  return `${firstClause.slice(0, maxLength - 1).trim()}…`;
+const ABBREVIATION_PLACEHOLDERS: Array<[RegExp, string]> = [
+  [/v\s*\.\s*s\s*\./gi, "\uE000VS\uE001"],
+  [/vb\s*\./gi, "\uE000VB\uE001"],
+  [/vs\s*\./gi, "\uE000VS2\uE001"],
+  [/dr\s*\./gi, "\uE000DR\uE001"],
+  [/prof\s*\./gi, "\uE000PROF\uE001"],
+];
+
+function protectAbbreviations(text: string): string {
+  let result = text;
+  for (const [pattern, placeholder] of ABBREVIATION_PLACEHOLDERS) {
+    result = result.replace(pattern, placeholder);
+  }
+  return result;
+}
+
+function restoreAbbreviations(text: string): string {
+  return text
+    .replace(/\uE000VS\uE001/g, "v.s.")
+    .replace(/\uE000VB\uE001/g, "vb.")
+    .replace(/\uE000VS2\uE001/g, "vs.")
+    .replace(/\uE000DR\uE001/g, "dr.")
+    .replace(/\uE000PROF\uE001/g, "prof.");
+}
+
+function firstSentence(text: string): string {
+  const protectedText = protectAbbreviations(text);
+  const match = protectedText.match(/^[\s\S]+?(?:[.!?](?:\s+|$)|$)/);
+  return restoreAbbreviations((match?.[0] ?? protectedText).trim());
+}
+
+function shortenMeaning(text: string, maxLength = 220): string {
+  const sentence = firstSentence(text);
+  if (sentence.length <= maxLength) return sentence;
+
+  const cut = sentence.slice(0, maxLength - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  const lastComma = cut.lastIndexOf(", ");
+  const breakAt = Math.max(lastSpace, lastComma);
+
+  if (breakAt > maxLength * 0.55) {
+    return `${cut.slice(0, breakAt).trim()}…`;
+  }
+
+  return `${cut.trim()}…`;
 }
 
 function isInflectionMetaGloss(text: string): boolean {

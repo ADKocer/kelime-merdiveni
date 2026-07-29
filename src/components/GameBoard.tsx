@@ -21,6 +21,7 @@ import {
   TURKISH_LETTER,
   toTurkishUpperCase,
 } from "@/lib/word-input";
+import { MeaningText } from "./MeaningText";
 import { DailyCountdown } from "./DailyCountdown";
 import { HowToPlay } from "./HowToPlay";
 import { LeaderboardModal } from "./LeaderboardModal";
@@ -874,7 +875,7 @@ export function GameBoard() {
             {hintMeaning && (
               <p className="mt-3 animate-pop-in rounded-lg border border-ladder-hint/40 bg-ladder-hint/10 px-3 py-2.5 text-sm leading-relaxed text-ladder-text">
                 <span className="font-medium text-ladder-hint">İpucu · </span>
-                {hintMeaning}
+                <MeaningText text={hintMeaning} />
               </p>
             )}
             <div className="-mx-3 mt-4 sm:mx-0">
@@ -901,7 +902,9 @@ export function GameBoard() {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3">
+        <div
+          className={`flex flex-wrap gap-3 ${!completed ? "-mt-2 mb-3 sm:mb-4" : ""}`}
+        >
           {!completed && (
             <>
               <button

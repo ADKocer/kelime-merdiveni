@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { toTurkishUpperCase } from "@/lib/word-input";
+import { MeaningText } from "./MeaningText";
 
 interface WordRowProps {
   word: string;
@@ -146,7 +147,7 @@ export function WordRow({
 
       {meaningOpen && meaning && (
         <p className="animate-pop-in px-1 pt-2 text-sm leading-relaxed text-ladder-muted">
-          {meaning}
+          <MeaningText text={meaning} />
         </p>
       )}
     </div>
