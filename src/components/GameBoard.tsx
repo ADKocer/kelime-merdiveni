@@ -12,6 +12,11 @@ import {
 import { GAME_LAUNCH_DATE, getIstanbulDateKey } from "@/lib/daily-clock";
 import { formatScoreWithAdim } from "@/lib/score-display";
 import {
+  getWordMeaning,
+  loadWordMeanings,
+  turkishLower,
+} from "@/lib/word-meanings";
+import {
   sanitizeWordInput,
   TURKISH_LETTER,
   toTurkishUpperCase,
@@ -52,6 +57,7 @@ interface ValidateResponse {
 interface HintResponse {
   position: number;
   hintCount?: number;
+  meaning?: string | null;
   error?: string;
 }
 
@@ -93,6 +99,7 @@ export function GameBoard() {
   const [hintCount, setHintCount] = useState(0);
   const [hintIndex, setHintIndex] = useState<number | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
+  const [hintMeaning, setHintMeaning] = useState<string | null>(null);
   const [optimalSteps, setOptimalSteps] = useState<number | null>(null);
   const [optimalPath, setOptimalPath] = useState<string[] | null>(null);
   const [showOptimal, setShowOptimal] = useState(false);
@@ -100,6 +107,8 @@ export function GameBoard() {
   const [optimalError, setOptimalError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
+  const [meanings, setMeanings] = useState<Record<string, string> | null>(null);
+  const [openMeaningWord, setOpenMeaningWord] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -132,6 +141,39 @@ export function GameBoard() {
       setScreen("home");
     }
   }, []);
+
+  useEffect(() => {
+    if (screen !== "play" || !puzzle) {
+      setOpenMeaningWord(null);
+      return;
+    }
+
+    void loadWordMeanings()
+      .then(setMeanings)
+      .catch(() => setMeanings({}));
+  }, [screen, puzzle]);
+
+  const getMeaningProps = useCallback(
+    (word: string) => {
+      if (!completed || !meanings) {
+        return {};
+      }
+
+      const key = turkishLower(word);
+      const meaning = getWordMeaning(word, meanings);
+
+      return {
+        meaningEnabled: true,
+        meaning,
+        meaningOpen: openMeaningWord === key,
+        onToggleMeaning: meaning
+          ? () =>
+              setOpenMeaningWord((current) => (current === key ? null : key))
+          : undefined,
+      };
+    },
+    [completed, meanings, openMeaningWord],
+  );
 
   useEffect(() => {
     const records = getDayRecords();
@@ -234,6 +276,7 @@ export function GameBoard() {
           setInput("");
           setMessage(null);
           setHintIndex(null);
+          setHintMeaning(null);
           setHintCount(data.hintCount ?? 0);
           setOptimalSteps(null);
           setOptimalPath(null);
@@ -406,6 +449,7 @@ export function GameBoard() {
       void fetchOptimal(puzzle.date, nextPath);
     } else {
       setHintIndex(null);
+      setHintMeaning(null);
     }
   }, [completed, fetchOptimal, hintCount, input, optimalSteps, path, puzzle, screen]);
 
@@ -474,6 +518,7 @@ export function GameBoard() {
       }
       if (data.path) setPath(data.path);
       setHintIndex(null);
+      setHintMeaning(null);
     } catch (undoError) {
       setError(
         undoError instanceof Error
@@ -508,6 +553,7 @@ export function GameBoard() {
         setHintCount((value) => value + 1);
       }
       setHintIndex(data.position - 1);
+      setHintMeaning(data.meaning?.trim() || "Anlam bulunamadı.");
     } catch (hintError) {
       setError(
         hintError instanceof Error ? hintError.message : "İpucu alınamadı.",
@@ -756,6 +802,12 @@ export function GameBoard() {
       </div>
 
       <section className="min-w-0 overflow-x-hidden rounded-2xl border border-ladder-border bg-ladder-surface/95 p-3 shadow-xl shadow-black/15 backdrop-blur-[2px] dark:shadow-black/40 sm:p-5">
+        {completed && (
+          <p className="mb-3 text-center text-xs text-ladder-muted sm:mb-4">
+            Kelimeye dokunarak anlamını görebilirsin.
+          </p>
+        )}
+
         <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:gap-3">
           <WordRow
             word={puzzle.startWord}
@@ -763,6 +815,7 @@ export function GameBoard() {
             highlight="start"
             hintIndex={path.length === 1 ? hintIndex : null}
             animateIn={false}
+            {...getMeaningProps(puzzle.startWord)}
           />
 
           {path.slice(1).map((word, index) => {
@@ -784,6 +837,7 @@ export function GameBoard() {
                   animateIn={isLast}
                   celebrate={completed && isLast && celebrate}
                   glowAllLetters={completed && isLast}
+                  {...getMeaningProps(word)}
                 />
               </div>
             );
@@ -817,6 +871,12 @@ export function GameBoard() {
               length={puzzle.wordLength}
               hintIndex={hintIndex}
             />
+            {hintMeaning && (
+              <p className="mt-3 animate-pop-in rounded-lg border border-ladder-hint/40 bg-ladder-hint/10 px-3 py-2.5 text-sm leading-relaxed text-ladder-text">
+                <span className="font-medium text-ladder-hint">İpucu · </span>
+                {hintMeaning}
+              </p>
+            )}
             <div className="-mx-3 mt-4 sm:mx-0">
               <TurkishKeyboard
                 onKey={appendLetter}
@@ -930,6 +990,7 @@ export function GameBoard() {
                           }
                           changedIndex={changedIndex}
                           animateIn={false}
+                          {...getMeaningProps(word)}
                         />
                       </div>
                     );
@@ -1002,6 +1063,21 @@ export function GameBoard() {
         </div>
 
         <HowToPlay />
+
+        {completed && (
+          <p className="mt-4 text-center text-[11px] leading-relaxed text-ladder-muted/70">
+            Kelime anlamları{" "}
+            <a
+              href="https://tr.wiktionary.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-ladder-border underline-offset-2 hover:text-ladder-text"
+            >
+              Türkçe Vikisözlük
+            </a>{" "}
+            (CC BY-SA 4.0) ve manuel tanımlardan derlenmiştir.
+          </p>
+        )}
       </section>
     </div>
   );

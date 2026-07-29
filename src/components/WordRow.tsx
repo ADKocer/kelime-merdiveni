@@ -14,6 +14,11 @@ interface WordRowProps {
   celebrate?: boolean;
   /** Son kelime: tüm harfler yeşil (turuncu vurgu yok) */
   glowAllLetters?: boolean;
+  /** Tamamlandıktan sonra anlam gösterimi */
+  meaningEnabled?: boolean;
+  meaning?: string | null;
+  meaningOpen?: boolean;
+  onToggleMeaning?: () => void;
 }
 
 const PARTICLE_OFFSETS = [
@@ -38,6 +43,10 @@ export function WordRow({
   animateIn = true,
   celebrate = false,
   glowAllLetters = false,
+  meaningEnabled = false,
+  meaning = null,
+  meaningOpen = false,
+  onToggleMeaning,
 }: WordRowProps) {
   const styles = {
     start: "border-ladder-accent bg-ladder-accent/30",
@@ -55,10 +64,15 @@ export function WordRow({
         : "animate-pop-in"
       : "";
 
-  const rowClassName = `relative flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors duration-300 sm:px-4 sm:py-3 ${styles[highlight]} ${motionClass}`;
+  const canShowMeaning = meaningEnabled && Boolean(meaning) && onToggleMeaning;
+  const rowClassName = `relative flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors duration-300 sm:px-4 sm:py-3 ${styles[highlight]} ${motionClass} ${
+    canShowMeaning
+      ? "cursor-pointer hover:border-ladder-text/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ladder-accent"
+      : ""
+  } ${meaningOpen ? "ring-1 ring-ladder-accent/60" : ""}`;
 
-  return (
-    <div className={rowClassName}>
+  const rowContent = (
+    <>
       {celebrate && (
         <span className="celebrate-particles" aria-hidden="true">
           {PARTICLE_OFFSETS.map((particle, index) => (
@@ -111,6 +125,30 @@ export function WordRow({
           );
         })}
       </span>
+    </>
+  );
+
+  return (
+    <div className="flex min-w-0 flex-col gap-0">
+      {canShowMeaning ? (
+        <button
+          type="button"
+          onClick={onToggleMeaning}
+          aria-expanded={meaningOpen}
+          aria-label={`${toTurkishUpperCase(word)} anlamını ${meaningOpen ? "gizle" : "göster"}`}
+          className={rowClassName}
+        >
+          {rowContent}
+        </button>
+      ) : (
+        <div className={rowClassName}>{rowContent}</div>
+      )}
+
+      {meaningOpen && meaning && (
+        <p className="animate-pop-in px-1 pt-2 text-sm leading-relaxed text-ladder-muted">
+          {meaning}
+        </p>
+      )}
     </div>
   );
 }

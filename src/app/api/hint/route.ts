@@ -12,6 +12,7 @@ import {
   safeServerError,
 } from "@/lib/api-guard";
 import { getDailyPuzzleForDateKey } from "@/lib/puzzle";
+import { getWordMeaningFromDb } from "@/lib/meanings-db";
 
 export async function POST(request: Request) {
   const originBlock = enforceSameOrigin(request);
@@ -44,7 +45,13 @@ export async function POST(request: Request) {
       hintCount,
     });
 
-    const response = NextResponse.json({ ...hint, hintCount });
+    const meaning = getWordMeaningFromDb(hint.nextWord);
+
+    const response = NextResponse.json({
+      position: hint.position,
+      hintCount,
+      meaning,
+    });
     response.headers.set("Set-Cookie", sessionCookieHeader(token));
     return response;
   } catch (error) {

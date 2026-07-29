@@ -37,6 +37,16 @@ SOFTWARE.
 
 `worddb.json` yeniden üretmek için: `npm run build:worddb`
 
+## Kelime anlamları
+
+Oyun anlamları (`public/meanings.json`), aşağıdaki kaynaklardan türetilmiştir:
+
+- **Kaynak:** [Türkçe Vikisözlük](https://tr.wiktionary.org) (Kaikki.org trwiktionary dump)
+- **Lisans:** [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/)
+- **Manuel tanımlar:** Vikisözlük'te bulunmayan 79 oyun kelimesi için özgün kısa tanımlar
+
+`meanings.json` yeniden üretmek için: `npm run build:meanings`
+
 ## Bağımlılıklar
 
 Üretim ve geliştirme bağımlılıklarının lisansları `package-lock.json` içinde belirtilmiştir.

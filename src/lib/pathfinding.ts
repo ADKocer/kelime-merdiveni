@@ -49,6 +49,7 @@ export function getShortestPathLength(startWord: string, endWord: string): numbe
 
 export interface MoveHint {
   position: number;
+  nextWord: string;
 }
 
 export function getNextMoveHint(
@@ -64,7 +65,7 @@ export function getNextMoveHint(
   const next = path[1];
   for (let i = 0; i < current.length; i++) {
     if (current[i] !== next[i]) {
-      return { position: i + 1 };
+      return { position: i + 1, nextWord: next };
     }
   }
 
