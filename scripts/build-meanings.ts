@@ -68,13 +68,17 @@ function shortenMeaning(text: string, maxLength = 140): string {
   return `${firstClause.slice(0, maxLength - 1).trim()}…`;
 }
 
+function isInflectionMetaGloss(text: string): boolean {
+  return /sözcüğünün çekimi|kelimesinin çekimi/i.test(text);
+}
+
 function pickMeaning(entry: {
   senses?: Array<{ glosses?: string[]; raw_glosses?: string[] }>;
 }): string {
   for (const sense of entry.senses ?? []) {
     for (const gloss of sense.glosses ?? sense.raw_glosses ?? []) {
       const cleaned = cleanGloss(String(gloss));
-      if (cleaned.length > 0) {
+      if (cleaned.length > 0 && !isInflectionMetaGloss(cleaned)) {
         return shortenMeaning(cleaned);
       }
     }
@@ -124,8 +128,23 @@ function shouldSkipEntry(
   meaning: string,
   lemma: string,
 ): boolean {
+  if (!meaning || isInflectionMetaGloss(meaning)) return true;
   const score = scoreMeaningCandidate(pos, meaning, lemma);
   return score < 20;
+}
+
+function isExactLemmaMatch(gameWord: string, entryWord: string): boolean {
+  return turkishLower(gameWord) === turkishLower(entryWord);
+}
+
+function isBetterMatch(
+  next: { score: number; exact: boolean },
+  current: { score: number; exact: boolean } | undefined,
+): boolean {
+  if (!current) return true;
+  if (next.exact && !current.exact) return true;
+  if (!next.exact && current.exact) return false;
+  return next.score > current.score;
 }
 
 async function ensureTrWiktionaryDump(): Promise<void> {
@@ -163,7 +182,10 @@ async function buildMeanings(): Promise<void> {
     lemmaToTargets.set(key, list);
   }
 
-  const bestMatches: Record<string, { score: number; meaning: string }> = {};
+  const bestMatches: Record<
+    string,
+    { score: number; meaning: string; exact: boolean }
+  > = {};
 
   const input = fs.createReadStream(TRWIKTIONARY_GZ).pipe(createGunzip());
   const rl = readline.createInterface({ input, crlfDelay: Infinity });
@@ -194,22 +216,18 @@ async function buildMeanings(): Promise<void> {
     if (shouldSkipEntry(entry.pos, meaning, lemma)) continue;
 
     const score = scoreMeaningCandidate(entry.pos, meaning, lemma);
-    const candidates = new Set<string>();
-    if (entry.word) candidates.add(normalizeLemma(entry.word));
-    for (const form of entry.forms ?? []) {
-      if (form.form) candidates.add(normalizeLemma(form.form));
-    }
+    const lemmaKey = normalizeLemma(entry.word ?? "");
+    const gameWords = lemmaToTargets.get(lemmaKey);
+    if (!gameWords) continue;
 
-    for (const candidate of candidates) {
-      const gameWords = lemmaToTargets.get(candidate);
-      if (!gameWords) continue;
+    for (const gameWord of gameWords) {
+      const exact = isExactLemmaMatch(gameWord, entry.word ?? "");
+      const existing = bestMatches[gameWord];
+      const candidate = { score, meaning, exact };
 
-      for (const gameWord of gameWords) {
-        const existing = bestMatches[gameWord];
-        if (!existing || score > existing.score) {
-          bestMatches[gameWord] = { score, meaning };
-          if (!existing) wiktionaryMatches += 1;
-        }
+      if (isBetterMatch(candidate, existing)) {
+        if (!existing) wiktionaryMatches += 1;
+        bestMatches[gameWord] = candidate;
       }
     }
   }
